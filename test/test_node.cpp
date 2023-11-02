@@ -1,4 +1,4 @@
-#include <ebb/node/node.hpp>
+#include <ebb/node.hpp>
 #include <stdio.h>
 
 class SomeNode : public Ebb::Node {

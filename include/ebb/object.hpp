@@ -2,7 +2,7 @@
 #define OBJECT_HPP
 
 #include <ebb/external/glm/glm.hpp>
-#include <ebb/node/node.hpp>
+#include <ebb/node.hpp>
 #include <ebb/transform.hpp>
 #include <ebb/internal/classutil.hpp>
 
@@ -12,6 +12,21 @@ class Object : public Ebb::Node {
 public:
     using Ebb::Node::Node; // inherited constructors
 
+    /**
+     * @brief Get the world-space tranform of this object.
+     * This function must have a chain up to the root to be accurate.
+     * For example, this is good:
+     * Object
+     *  - NotObject
+     *  - Object (or inherited from Object)
+     *    - Object (can get world-space position)
+     * 
+     * This is not:
+     * Object
+     *   - NotObject
+     *     - Object (cannot get world-space position as it doesn't have a chain of Objects back to the root)
+     *   - Object
+    */
     Ebb::Transform world_pos() {
         if (static_cast<Object *>(this->get_parent()) != nullptr) return static_cast<Object *>(this->get_parent())->world_pos() * this->_transform;
         return this->_transform;
