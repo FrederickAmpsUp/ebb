@@ -1,0 +1,2 @@
+#undef getter
+#undef setter
