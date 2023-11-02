@@ -3,7 +3,7 @@
 
 class SomeNode : public Ebb::Node {
 public:
-    using Ebb::Node::Node;
+    using Ebb::Node::Node; // inherited constructors
     void setup() override {
         printf("SomeNode::setup()\n");
         this->Node::setup();  // setup children

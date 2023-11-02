@@ -13,11 +13,26 @@ namespace Ebb {
 */
 class Node {
 public:
+    /**
+     * @brief Constructor
+     * @param parent The parent node. If this is NULL, the node is at the root of the tree.
+    */
     Node(Node *parent) : _parent(parent) {
         if (parent != nullptr) parent->add_child(this);
     }
-    Node(Node *parent, std::vector<Node *> children) : _parent(parent), _children(children) {
+
+    /**
+     * @brief Constructor
+     * @param parent The parent node. If this is NULL, the node is at the root of the tree.
+     * @param children A vector of child nodes.
+    */
+    Node(Node *parent, std::vector<Node *>& children) : _parent(parent), _children(children) {
         if (parent != nullptr) parent->add_child(this);
+        for (Node *child : _children) {
+            Node *child_parent = child->get_parent();
+            if (child_parent != nullptr) child_parent->remove_child(child);
+            child->set_parent(this);
+        }
     }
 
     /**
@@ -107,9 +122,9 @@ private:
     Node *_parent;
 
         // Getters
-    getter(_children);
-    getter(_parent);
-    setter(_parent);
+    getter(_children)
+    getter(_parent)
+    setter(_parent)
 }; // end class Node
 }; // end namespace Ebb
 
