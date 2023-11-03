@@ -5,6 +5,7 @@
 #include <ebb/error.hpp>
 #include <ebb/external/glm/glm.hpp>
 #include <ebb/external/glm/gtc/type_ptr.hpp>
+#include <ebb/internal/classutil.hpp>
 
 namespace Ebb {
 
@@ -27,9 +28,9 @@ public:
     */
 template <typename T>
     void set_uniform(const char *name, T value) {
+        this->Ebb::Shader::use();
         int location = glGetUniformLocation(this->_program_id, name);
         if (location != -1) {
-            this->use();
             _uniform(location, value);
         } else {
             Ebb::runtime_error(false, "Unable to find uniform %s\n", name);
@@ -39,11 +40,12 @@ template <typename T>
     /**
      * @brief Make the compiled program active.
     */
-    void use() {
+    virtual void use() {
         glUseProgram(this->_program_id);
     }
 private:
     unsigned int _program_id;
+    getter(_program_id)
     unsigned int _vsh_id, _fsh_id;
 
     void _uniform(int location, int value) {
@@ -65,5 +67,7 @@ private:
     // TODO: more uniform types (implement as needed)
 }; // end class Shader
 }; // end namespace Ebb
+
+#include <ebb/internal/cleanup.hpp>
 
 #endif // SHADER_HPP

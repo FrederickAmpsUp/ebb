@@ -1,8 +1,10 @@
 #include <ebb/core/window.hpp>
+#include <ebb/internal/internals.hpp>
 #include <ebb/transform.hpp>
 #include <ebb/object.hpp>
 #include <ebb/mesh.hpp>
 #include <ebb/render/shader.hpp>
+#include <ebb/render/blinn_phong.hpp>
 #include <ebb/render/mesh_renderer.hpp>
 #include <ebb/error.hpp>
 #include <glad/glad.h>
@@ -19,7 +21,7 @@ void frame_callback() {
         win->close();
     }
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);  // Clear buffers
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     suzanne->get_child<Ebb::MeshRenderer>()->draw();
@@ -27,7 +29,7 @@ void frame_callback() {
 
 int main(int argc, char **argv) {
         // Create the window
-    win = new Ebb::Window(800, 600, "Test mesh", frame_callback);
+    win = new Ebb::Window(800, 800, "Test mesh", frame_callback);
 
         // Setup GLAD. This will be automated eventually
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -35,38 +37,15 @@ int main(int argc, char **argv) {
     }
 
     mesh = new Ebb::Mesh("models/suzanne.ebbm");
-    shader = new Ebb::Shader(R"(
-#version 330 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aNorm;
-
-uniform mat4 objectMatrix;
-
-mat3 getNormalMatrix(mat4 modelMatrix) {
-    return mat3(transpose(inverse(modelMatrix)));
-}
-
-vec3 transformNormal(vec3 normal, mat4 modelMatrix) {
-    mat3 normalMatrix = getNormalMatrix(modelMatrix);
-    return normalize(normalMatrix * normal);
-}
-
-varying vec3 normal;
-void main() {
-    gl_Position = vec4(aPos, 1.0) * objectMatrix;
-    normal = transformNormal(aNorm, objectMatrix);
-}
-    )", R"(
-#version 330 core
-varying vec3 normal;
-
-void main() {
-    gl_FragColor = vec4(vec3(dot(normal, normalize(vec3(1.0, 1.0, -1.0))) * .5 + .5), 1.0);
-}
-    )");
+    shader = new Ebb::Shaders::BlinnPhong(
+        glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(.9f), glm::vec3(.1f),
+        1.0f, 1.0f, glm::vec3(.9f), glm::vec3(.95f), 128.0f
+    );
     suzanne = new Ebb::Object(nullptr);
     suzanne->set_transform(Ebb::Transform(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 180.0, 0.0)));
     Ebb::MeshRenderer *renderer = new Ebb::MeshRenderer(suzanne, shader, mesh);
+
+    Ebb::Internals::currentCameraPos = glm::vec3(0.0, 0.0, -10000.0);
 
         // Run the window. No frame count is specified, the window will run forever
     win->run();
