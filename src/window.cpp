@@ -131,3 +131,7 @@ void Ebb::Window::step() {
 void Ebb::Window::make_active() {
     glfwMakeContextCurrent(this->window);
 }
+
+void Ebb::Window::close() {
+    glfwSetWindowShouldClose(this->window, GLFW_TRUE);
+}

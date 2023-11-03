@@ -81,6 +81,11 @@ public:
     */
     void make_active();
 
+    /**
+     * @brief Set the window to close on the next frame
+    */
+    void close();
+
 private:
     int width, height;
     GLFWwindow* window;

@@ -32,7 +32,7 @@ template <typename T>
             this->use();
             _uniform(location, value);
         } else {
-            Ebb::runtime_error("Unable to find uniform %s\n", name);
+            Ebb::runtime_error(false, "Unable to find uniform %s\n", name);
         }
     }
 
