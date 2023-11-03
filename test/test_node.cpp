@@ -21,6 +21,6 @@ int main(int argc, char **argv) {
     SomeNode *child2 = new SomeNode(rootNode);
     SomeNode *grandchild = new SomeNode(child1);
 
-    rootNode->setup();
+    rootNode->setup(); // should print SomeNode::setup() 4 times
     return 0;
 }
