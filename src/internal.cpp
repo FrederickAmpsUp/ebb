@@ -4,6 +4,6 @@
 
 void setup_glad() {
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        Ebb::runtime_error("Failed to load GLAD, please check your video drivers.");
+        Ebb::runtime_error(true, "Failed to load GLAD, please check your video drivers.");
     }
 }

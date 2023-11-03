@@ -3,7 +3,7 @@
 
 #include <ebb/external/glm/glm.hpp>
 #include <ebb/external/glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/quaternion.hpp>
+#include <ebb/external/glm/gtx/quaternion.hpp>
 #include <ebb/internal/classutil.hpp>
 
 namespace Ebb {

@@ -6,7 +6,7 @@
 #include <ebb/render/renderable.hpp>
 #include <ebb/internal/classutil.hpp>
 #include <ebb/render/shader.hpp>
-#include <glm/glm.hpp>
+#include <ebb/external/glm/glm.hpp>
 
 namespace Ebb {
 
@@ -16,7 +16,7 @@ public:
         this->_shader = shader;
     }
 
-    void draw();
+    void draw() override;
 
     void setup()  override;
     void update() override;
@@ -38,6 +38,9 @@ private:
             if (static_cast<Ebb::Object *>(node->get_parent()) != nullptr) return static_cast<Ebb::Object *>(node->get_parent())->world_pos().get_transform_matrix();
             node = node->get_parent();
         }
+
+        if (static_cast<Ebb::Object *>(node) != nullptr) return static_cast<Ebb::Object *>(node)->world_pos().get_transform_matrix();
+        return glm::mat4x4(1.0f);
     }
     
 }; // end class MeshRenderer

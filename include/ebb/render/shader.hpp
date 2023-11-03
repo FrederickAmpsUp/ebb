@@ -3,8 +3,8 @@
 
 #include <glad/glad.h>
 #include <ebb/error.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <ebb/external/glm/glm.hpp>
+#include <ebb/external/glm/gtc/type_ptr.hpp>
 
 namespace Ebb {
 
@@ -58,7 +58,7 @@ private:
     void _uniform(int location, glm::vec3 value) {
         glUniform3f(location, value.x, value.y, value.z);
     }
-    void _unform(int location, glm::mat4x4 value) {
+    void _uniform(int location, glm::mat4x4 value) {
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
     }
 
