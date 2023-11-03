@@ -28,7 +28,7 @@ public:
      *   - Object
     */
     Ebb::Transform world_pos() {
-        if (static_cast<Object *>(this->get_parent()) != nullptr) return static_cast<Object *>(this->get_parent())->world_pos() * this->_transform;
+        if (dynamic_cast<Object *>(this->get_parent()) != nullptr) return dynamic_cast<Object *>(this->get_parent())->world_pos() * this->_transform;
         return this->_transform;
     }
 private:

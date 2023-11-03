@@ -1,4 +1,6 @@
 #include <ebb/core/window.hpp>
+#include <ebb/transform.hpp>
+#include <ebb/object.hpp>
 #include <ebb/mesh.hpp>
 #include <ebb/render/shader.hpp>
 #include <ebb/render/mesh_renderer.hpp>
@@ -7,7 +9,7 @@
 #include <stdio.h>
 
 Ebb::Window *win;
-Ebb::MeshRenderer *renderer;
+Ebb::Object *suzanne;
 Ebb::Mesh *mesh;
 Ebb::Shader *shader;
 
@@ -20,7 +22,7 @@ void frame_callback() {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);  // Clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    renderer->draw();
+    suzanne->get_child<Ebb::MeshRenderer>()->draw();
 }
 
 int main(int argc, char **argv) {
@@ -40,20 +42,31 @@ layout (location = 1) in vec3 aNorm;
 
 uniform mat4 objectMatrix;
 
+mat3 getNormalMatrix(mat4 modelMatrix) {
+    return mat3(transpose(inverse(modelMatrix)));
+}
+
+vec3 transformNormal(vec3 normal, mat4 modelMatrix) {
+    mat3 normalMatrix = getNormalMatrix(modelMatrix);
+    return normalize(normalMatrix * normal);
+}
+
 varying vec3 normal;
 void main() {
     gl_Position = vec4(aPos, 1.0) * objectMatrix;
-    normal = aNorm;
+    normal = transformNormal(aNorm, objectMatrix);
 }
     )", R"(
 #version 330 core
 varying vec3 normal;
 
 void main() {
-    gl_FragColor = vec4(normal, 1.0);
+    gl_FragColor = vec4(vec3(dot(normal, normalize(vec3(1.0, 1.0, -1.0))) * .5 + .5), 1.0);
 }
     )");
-    renderer = new Ebb::MeshRenderer(nullptr, shader, mesh);
+    suzanne = new Ebb::Object(nullptr);
+    suzanne->set_transform(Ebb::Transform(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 180.0, 0.0)));
+    Ebb::MeshRenderer *renderer = new Ebb::MeshRenderer(suzanne, shader, mesh);
 
         // Run the window. No frame count is specified, the window will run forever
     win->run();

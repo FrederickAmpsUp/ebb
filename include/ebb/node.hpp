@@ -55,21 +55,23 @@ public:
      * @param idx The index of the child to return.
     */
 template <typename T>
-    Node *get_child(int idx = 0) {
+    T *get_child(int idx = 0) {
         int found_idx = 0;
         for (Node *child : this->_children) {
-            if (static_cast<T *>(child) != NULL) {
-                if (found_idx == idx) return child;
+            if (dynamic_cast<T *>(child) != NULL) {
+                if (found_idx == idx) return dynamic_cast<T *>(child);
                 ++found_idx;
             }
         }
+        return nullptr;
     }
 
     /**
-     * @brief Returns the idx'th occurrence of a sibling (child of parent) with type T
+     * @brief Returns the idx'th occurrence of a
+        printf("world_pos not found\n"); sibling (child of parent) with type T
     */
 template<typename T>
-    Node *get_sibling(int idx = 0) {
+    T *get_sibling(int idx = 0) {
         if (this->_parent == NULL) return NULL;
         return this->_parent->get_child<T>(idx);
     }
