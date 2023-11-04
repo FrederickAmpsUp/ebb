@@ -5,6 +5,7 @@
 #include <ebb/mesh.hpp>
 #include <ebb/render/shader.hpp>
 #include <ebb/render/blinn_phong.hpp>
+#include <ebb/render/half_lambert.hpp>
 #include <ebb/render/mesh_renderer.hpp>
 #include <ebb/error.hpp>
 #include <glad/glad.h>
@@ -37,9 +38,15 @@ int main(int argc, char **argv) {
     }
 
     mesh = new Ebb::Mesh("models/suzanne.ebbm");
+/*
     shader = new Ebb::Shaders::BlinnPhong(
         glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(.9f), glm::vec3(.1f),
-        1.0f, 1.0f, glm::vec3(.9f), glm::vec3(.95f), 128.0f
+        1.0f, 1.0f, glm::vec3(.9f), glm::vec3(.95f), 32.0f
+    );*/
+
+    shader = new Ebb::Shaders::HalfLambert(
+        glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(.9f), glm::vec3(.1f),
+        glm::vec3(1.0f, 1.0f, .9f)
     );
     suzanne = new Ebb::Object(nullptr);
     suzanne->set_transform(Ebb::Transform(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 180.0, 0.0)));
@@ -49,5 +56,6 @@ int main(int argc, char **argv) {
 
         // Run the window. No frame count is specified, the window will run forever
     win->run();
+ 
     return 0;
 }

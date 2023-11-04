@@ -68,6 +68,16 @@ void main() {
 namespace Ebb {
 
 namespace Shaders {
+
+/**
+ * @brief Blinn-Phong lighting model for PB diffuse and specular lighting
+ * See https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_reflection_model for more information.
+ * Overview:
+ *  diffuse = dot(norm, dirToLight) * diffuseCol * lightCol
+ *  half = normalize(dirToCam + dirToLight)
+ *  specular = (dot(norm, half)^shininess) * specularCol * lightCol
+ *  color = ambientCol + diffuse + specular
+*/
 class BlinnPhong : public Ebb::Shader {
 public:
     BlinnPhong(
