@@ -6,6 +6,7 @@
 #include <ebb/render/renderable.hpp>
 #include <ebb/render/blinn_phong.hpp>
 #include <ebb/render/half_lambert.hpp>
+#include <ebb/render/basic_vert.hpp>
 #include <ebb/object.hpp>
 #include <ebb/transform.hpp>
 #include <ebb/node.hpp>
