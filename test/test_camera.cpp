@@ -24,11 +24,12 @@ int main(int argc, char **argv) {
     cam->transform.translate(glm::vec3(0, 0, -3));
     Ebb::Mesh *obj = new Ebb::Mesh("models/suzanne.ebbm");
     Ebb::Object *suzanne = new Ebb::Object(root);
-    Ebb::Component *mesh = new Ebb::MeshRenderer(suzanne, new Ebb::Shaders::HalfLambert(
-        glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(.1f),
-        glm::vec3(1.0f, 1.0f, 1.0f)
+
+        // TODO: figure out why the light's z-axis is inverted
+    Ebb::Component *mesh = new Ebb::MeshRenderer(suzanne, new Ebb::Shaders::BlinnPhong(
+        glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(1.0f), glm::vec3(.1f),
+        1.0f, 1.0f, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f), 64.0f
     ), obj);
 
-        // run for a couple seconds (120 frames at 60fps = 2s)
-    win->run(120);
+    win->run();
 }

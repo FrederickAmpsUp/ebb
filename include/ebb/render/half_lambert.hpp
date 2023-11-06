@@ -26,7 +26,7 @@ varying vec3 position;
 void main() {
     gl_Position = (cameraMatrix * (vec4(aPos, 1.0) * objectMatrix));
     normal = transformNormal(aNorm, objectMatrix);
-    position = (cameraMatrix * (vec4(aPos, 1.0) * objectMatrix)).xyz;
+    position = (vec4(aPos, 1.0) * objectMatrix).xyz;
 }
 )";
 

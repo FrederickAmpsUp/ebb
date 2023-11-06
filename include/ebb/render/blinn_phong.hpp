@@ -28,7 +28,7 @@ varying vec3 position;
 void main() {
     gl_Position = (cameraMatrix * (vec4(aPos, 1.0) * objectMatrix));
     normal = transformNormal(aNorm, objectMatrix);
-    position = (cameraMatrix * (vec4(aPos, 1.0) * objectMatrix)).xyz;
+    position = (vec4(aPos, 1.0) * objectMatrix).xyz;
 }
 )";
 
@@ -53,7 +53,7 @@ layout (location = 0) out vec3 color;
 
 void main() {
     vec3 lightDir = normalize(lightPos - position);
-    vec3 viewDir = normalize(cameraPos - position);
+    vec3 viewDir = normalize(position - cameraPos);
     vec3 halfVec = normalize(lightDir + viewDir);
 
     float diffuseTerm = max(dot(normal, lightDir), 0.0);
