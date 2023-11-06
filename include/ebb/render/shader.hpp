@@ -9,6 +9,32 @@
 
 namespace Ebb {
 
+class VertexShader {
+public:
+    /**
+     * @brief Vertex shader constructor.
+     * This compiles the shader.
+     * @param src A C-string containing the shader source.
+    */
+    VertexShader(const char *src);
+private:
+    unsigned int _id;
+    getter(_id)
+};
+
+class FragmentShader {
+public:
+    /**
+     * @brief Fragment shader constructor.
+     * This compiles the shader.
+     * @param src A C-string containing the shader source.
+    */
+   FragmentShader(const char *src);
+private:
+    unsigned int _id;
+    getter(_id)
+};
+
 class Shader {
 public:
     /**
@@ -19,6 +45,15 @@ public:
     */
     Shader(const char *vtx_src, 
            const char *frg_src);
+
+    /**
+     * @brief Shader constructor.
+     * This links the vert/frag shaders.
+     * @param vsh The vertex shader to use.
+     * @param fsh The fragment shader to use.
+    */
+    Shader(VertexShader   *vsh,
+           FragmentShader *fsh);
 
     /**
      * @brief Set a shader uniform by name.
