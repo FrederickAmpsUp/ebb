@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <string>
+#include <ebb/external/glm/glm.hpp>
 
 namespace Ebb {
 /**
@@ -85,6 +86,20 @@ public:
      * @brief Set the window to close on the next frame
     */
     void close();
+
+    /**
+     * @brief Clear the window.
+     * @param color The color to clear to.
+    */
+    void clear(glm::vec3 color) {
+        this->make_active();
+        glClearColor(color.x, color.y, color.z, 1.0f);  // Clear buffers
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    bool key_pressed(int key) {
+        return glfwGetKey(this->window, key) == GLFW_PRESS;
+    }
 
 private:
     int width, height;

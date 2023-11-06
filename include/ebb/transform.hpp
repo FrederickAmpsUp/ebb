@@ -3,6 +3,7 @@
 
 #include <ebb/external/glm/glm.hpp>
 #include <ebb/external/glm/gtc/matrix_transform.hpp>
+#include <ebb/external/glm/gtx/euler_angles.hpp>
 #include <ebb/external/glm/gtx/quaternion.hpp>
 #include <ebb/internal/classutil.hpp>
 
@@ -61,6 +62,19 @@ public:
         size.z = glm::length(glm::vec3(_transform_matrix[2]));
 
         return size;
+    }
+
+    void translate(glm::vec3 pos) {
+        this->_transform_matrix = glm::translate(this->_transform_matrix, pos);
+    }
+    void rotate(glm::vec3 euler) {
+        this->_transform_matrix *= glm::eulerAngleXYZ(glm::radians(euler.z), glm::radians(euler.y), glm::radians(euler.z));
+    }
+    void rotate(glm::quat quaternion) {
+        this->_transform_matrix *= glm::mat4x4(quaternion);
+    }
+    void scale(glm::vec3 scale) {
+        this->_transform_matrix = glm::scale(this->_transform_matrix, scale);
     }
 
 private:

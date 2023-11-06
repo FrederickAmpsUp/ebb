@@ -1,61 +1,43 @@
-#include <ebb/core/window.hpp>
-#include <ebb/internal/internals.hpp>
-#include <ebb/transform.hpp>
-#include <ebb/object.hpp>
-#include <ebb/mesh.hpp>
-#include <ebb/render/shader.hpp>
-#include <ebb/render/blinn_phong.hpp>
-#include <ebb/render/half_lambert.hpp>
-#include <ebb/render/mesh_renderer.hpp>
-#include <ebb/error.hpp>
-#include <glad/glad.h>
+#include <ebb/basic.hpp>
 #include <stdio.h>
 
 Ebb::Window *win;
 Ebb::Object *suzanne;
-Ebb::Mesh *mesh;
 Ebb::Shader *shader;
 
 void frame_callback() {
         // Close the window when ESC is pressed
-    if (glfwGetKey(win->get_window(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    if (win->key_pressed(GLFW_KEY_ESCAPE)) {
         win->close();
     }
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Clear buffers
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    win->clear(glm::vec3(0.529, 0.808, 0.922));
     suzanne->get_child<Ebb::MeshRenderer>()->draw();
 }
 
 int main(int argc, char **argv) {
-        // Create the window
-    win = new Ebb::Window(800, 800, "Test mesh", frame_callback);
+    win = new Ebb::Window(800, 800, "Test mesh", frame_callback); // Create the window
 
-        // Setup GLAD. This will be automated eventually
-    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        Ebb::runtime_error(true, "Failed to load GLAD, please check your video drivers.");
-    }
-
-    mesh = new Ebb::Mesh("models/suzanne.ebbm");
+    Ebb::Mesh *mesh = new Ebb::Mesh("models/suzanne.ebbm");  // Load in Suzanne the Blender monkey from my models/ folder
 /*
-    shader = new Ebb::Shaders::BlinnPhong(
+        // PBR shader
+    shader = new Ebb::Shaders::BlinnPhong(  // Basic shiny white material
         glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(.9f), glm::vec3(.1f),
         1.0f, 1.0f, glm::vec3(.9f), glm::vec3(.95f), 32.0f
     );*/
 
-    shader = new Ebb::Shaders::HalfLambert(
+        // NON-PBR shader
+    shader = new Ebb::Shaders::HalfLambert(  // Basic white material
         glm::vec3(1.0f, 1.0f, -1.0f), glm::vec3(.9f), glm::vec3(.1f),
-        glm::vec3(1.0f, 1.0f, .9f)
+        glm::vec3(1.0f, 1.0f, 1.0f)
     );
-    suzanne = new Ebb::Object(nullptr);
-    suzanne->set_transform(Ebb::Transform(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 180.0, 0.0)));
-    Ebb::MeshRenderer *renderer = new Ebb::MeshRenderer(suzanne, shader, mesh);
+    suzanne = new Ebb::Object(nullptr); // empty object
+    suzanne->transform.rotate(glm::vec3(0.0f, 180.0f, 0.0f));  // rotate 180 around y-axis (Y is up eat it)
+    Ebb::MeshRenderer *renderer = new Ebb::MeshRenderer(suzanne, shader, mesh);  // add a mesh renderer to render the mesh
 
-    Ebb::Internals::currentCameraPos = glm::vec3(0.0, 0.0, -10000.0);
+    Ebb::Internals::currentCameraPos = glm::vec3(0.0, 0.0, -10000.0);  // temporary, once cameras and rendertexts exist this won't be necessary.
 
-        // Run the window. No frame count is specified, the window will run forever
-    win->run();
+    win->run(); // Run the window. No frame count is specified, the window will run forever
  
     return 0;
 }

@@ -28,13 +28,11 @@ public:
      *   - Object
     */
     Ebb::Transform world_pos() {
-        if (dynamic_cast<Object *>(this->get_parent()) != nullptr) return dynamic_cast<Object *>(this->get_parent())->world_pos() * this->_transform;
-        return this->_transform;
+        if (dynamic_cast<Object *>(this->get_parent()) != nullptr) return dynamic_cast<Object *>(this->get_parent())->world_pos() * this->transform;
+        return this->transform;
     }
+    Ebb::Transform transform;
 private:
-    Ebb::Transform _transform;
-    getter(_transform)
-    setter(_transform)
 }; // end class Object
 }; // end namespace Ebb
 

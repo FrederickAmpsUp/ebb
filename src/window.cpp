@@ -11,6 +11,7 @@ static void _window_size_callback(GLFWwindow *window, int width, int height) {
     instance->_window_resize_callback(window, width, height);
 }
 
+    // Setup GLAD and GLFW
 static void _glfw_init() {
     if (!glfwInit()) {
         Ebb::runtime_error(true, "Failed to initialize GLFW.\n");
