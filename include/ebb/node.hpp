@@ -67,13 +67,38 @@ template <typename T>
     }
 
     /**
-     * @brief Returns the idx'th occurrence of a
-        printf("world_pos not found\n"); sibling (child of parent) with type T
+     * @brief Returns the idx'th occurrence of a sibling (child of parent) with type T
     */
 template<typename T>
     T *get_sibling(int idx = 0) {
         if (this->_parent == NULL) return NULL;
         return this->_parent->get_child<T>(idx);
+    }
+
+    /**
+     * @brief Returns all occurrences in the entire node tree with type T
+    */
+template<typename T>
+    std::vector<T *> find_all() {
+        Node *parent = this;
+        while (parent->get_parent() != nullptr) parent = parent->get_parent();
+
+        return parent->find_child<T>();
+    }
+
+    /**
+     * @brief Returns all occurrences of a child with type T
+    */
+template<typename T>
+    std::vector<T *> find_child() {
+        int i = 0;
+        std::vector<T *> children;
+        while (i < this->_children.size()) {
+            if (dynamic_cast<T *>(this->get_child(i)) != nullptr) children.push_back(dynamic_cast<T *>(this->get_child(i)));
+            for (T *child : this->get_child(i)->template find_child<T>()) children.push_back(child);
+            ++i;
+        }
+        return children;
     }
 
     /**

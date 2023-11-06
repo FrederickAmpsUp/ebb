@@ -1,10 +1,12 @@
+#ifndef RENDERTEX_HPP
+#define RENDERTEX_HPP
+
 #include <ebb/render/renderable.hpp>
 #include <ebb/render/shader.hpp>
 #include <ebb/internal/classutil.hpp>
 
 namespace Ebb {
 
-// TODO: make this renderable
 class RenderTexture : public Ebb::Renderable {
 public:
     /**
@@ -40,3 +42,4 @@ private:
 };  // end namespace Ebb
 
 #include <ebb/internal/cleanup.hpp>
+#endif // RENDERTEX_HPP

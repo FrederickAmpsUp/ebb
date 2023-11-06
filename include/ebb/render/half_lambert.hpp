@@ -10,6 +10,7 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNorm;
 
 uniform mat4 objectMatrix;
+uniform mat4 cameraMatrix;
 
 mat3 getNormalMatrix(mat4 modelMatrix) {
     return mat3(transpose(inverse(modelMatrix)));
@@ -23,9 +24,9 @@ vec3 transformNormal(vec3 normal, mat4 modelMatrix) {
 varying vec3 normal;
 varying vec3 position;
 void main() {
-    gl_Position = vec4(aPos, 1.0) * objectMatrix;
+    gl_Position = (cameraMatrix * (vec4(aPos, 1.0) * objectMatrix));
     normal = transformNormal(aNorm, objectMatrix);
-    position = (vec4(aPos, 1.0) * objectMatrix).xyz;
+    position = (cameraMatrix * (vec4(aPos, 1.0) * objectMatrix)).xyz;
 }
 )";
 

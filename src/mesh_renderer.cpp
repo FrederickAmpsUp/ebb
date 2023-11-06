@@ -1,4 +1,6 @@
 #include <ebb/render/mesh_renderer.hpp>
+#include <ebb/internal/internals.hpp>
+#include <ebb/render/camera.hpp>
 #include <ebb/error.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -64,6 +66,8 @@ Ebb::MeshRenderer::MeshRenderer(Ebb::Node *parent, Ebb::Shader *shader, Ebb::Mes
 
 void Ebb::MeshRenderer::draw() {
     this->_shader->set_uniform<glm::mat4x4>("objectMatrix", _get_transform_matrix());
+    if (Ebb::Internals::activeCamera != nullptr)
+        this->_shader->set_uniform<glm::mat4x4>("cameraMatrix", Ebb::Internals::activeCamera->get_proj_matrix() * Ebb::Internals::activeCamera->transform.get_transform_matrix());
     this->_shader->use();
 
     glBindVertexArray(VAO);
