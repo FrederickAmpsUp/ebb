@@ -131,6 +131,11 @@ void Ebb::Window::step() {
 
 void Ebb::Window::make_active() {
     glfwMakeContextCurrent(this->window);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDrawBuffer(GL_BACK);
+
+    glViewport(0,0, this->width, this->height);
 }
 
 void Ebb::Window::close() {

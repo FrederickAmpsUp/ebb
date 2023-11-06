@@ -47,6 +47,8 @@ uniform vec3 diffuseCol;
 uniform vec3 specularCol;
 uniform float shininess;
 
+layout (location = 0) out vec3 color;
+
 void main() {
     vec3 lightDir = normalize(lightPos - position);
     vec3 viewDir = normalize(cameraPos - position);
@@ -58,10 +60,7 @@ void main() {
     vec3 diffuseColor = diffuseCol * lightCol * diffuseIntensity;
     vec3 specularColor = specularCol * lightCol * specularIntensity;
 
-    gl_FragColor = vec4(
-      ambient + (diffuseTerm * diffuseColor) + (specularTerm * specularColor),
-      1.0  
-    );
+    color = ambient + (diffuseTerm * diffuseColor) + (specularTerm * specularColor);
 }
 )";
 

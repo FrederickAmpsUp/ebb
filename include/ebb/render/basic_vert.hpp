@@ -1,6 +1,6 @@
 #include <ebb/render/shader.hpp>
 
-const char * const _world_space_vert_src = R"(
+static const char * const _world_space_vert_src = R"(
 #version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNorm;

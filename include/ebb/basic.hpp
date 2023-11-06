@@ -15,3 +15,4 @@
 #include <ebb/external/glm/gtc/matrix_transform.hpp>
 #include <ebb/external/glm/gtx/euler_angles.hpp>
 #include <ebb/external/glm/gtx/quaternion.hpp>
+#include <ebb/render/rendertex.hpp>

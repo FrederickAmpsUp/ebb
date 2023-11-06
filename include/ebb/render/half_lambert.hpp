@@ -41,9 +41,11 @@ uniform vec3 ambient;
 varying vec3 normal;
 varying vec3 position;
 
+layout (location = 0) out vec3 color;
+
 void main() {
     vec3 diffuse = pow(dot(normal, normalize(lightPos - position)) * 0.5 + 0.5, 2.0) * diffuseCol * lightCol;
-    gl_FragColor = vec4(ambient + diffuse, 1.0);
+    color = ambient + diffuse;
 }
 )";
 
