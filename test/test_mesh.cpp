@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
     suzanne->transform.rotate(glm::vec3(0.0f, 0.0f, 0.0f));  // rotate 180 around y-axis (Y is up eat it)
     Ebb::MeshRenderer *renderer = new Ebb::MeshRenderer(suzanne, shader, mesh);  // add a mesh renderer to render the mesh
 
-    Ebb::Internals::activeCamera = new Ebb::Camera(nullptr, 1,1,1.0f);
+    Ebb::Internals::activeCamera = new Ebb::Camera(nullptr, 1,1,1.0f);  // segfault if not set
     Ebb::Internals::activeCamera->transform.translate(glm::vec3(0,0,-100));
 
     win->make_active();
