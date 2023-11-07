@@ -16,7 +16,7 @@ void frame_callback() {
     win->make_active(); // make the window active, camera update binds the camera's render texture
     root->get_child<Ebb::Camera>()->get_tex()->draw();  // draw the camera's render texture to the window
 
-    suzanne->transform.translation(glm::vec3(glm::sin(Ebb::Time::elapsed_seconds()), 0.0f, 0.0f));
+    //suzanne->transform.translation(glm::vec3(glm::sin(Ebb::Time::elapsed_seconds()), 0.0f, glm::cos(Ebb::Time::elapsed_seconds())));
     suzanne->transform.rotation(glm::vec3(0.0, glm::degrees(Ebb::Time::elapsed_seconds()), 0.0));
 }
 
@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 
         // TODO: figure out why the light's z-axis is inverted (feature not bug ... right guys?)
     Ebb::Component *mesh = new Ebb::MeshRenderer(suzanne, new Ebb::Shaders::BlinnPhong(  // mesh renderer for suzanne, with a shiny blue material
-        glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(1.0f), glm::vec3(.1f),
+        glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(1.0f), glm::vec3(0.5294117647f, 0.8078431373f, 0.9215686275f) * .1f,
         1.0f, 1.0f, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f), 64.0f
     ), obj);
 
