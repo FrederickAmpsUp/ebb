@@ -13,6 +13,17 @@ namespace Ebb {
 class Camera : public Object {
 public:
     Camera(Ebb::Node *parent, unsigned int pixelWidth, unsigned int pixelHeight, float fov) : Object(parent) {
+        this->background = glm::vec3(0.0);
+        this->_width = pixelWidth;
+        this->_height = pixelHeight;
+
+        this->_tex = new Ebb::RenderTexture(nullptr, this->_width, this->_height);
+
+        this->_proj_matrix = glm::perspective(glm::radians(fov), (float)pixelWidth / (float)pixelHeight, 0.1f, 100.0f);
+    }
+
+    Camera(Ebb::Node *parent, unsigned int pixelWidth, unsigned int pixelHeight, float fov, glm::vec3 background) : Object(parent) {
+        this->background = background;
         this->_width = pixelWidth;
         this->_height = pixelHeight;
 
@@ -22,13 +33,15 @@ public:
     }
 
     void update() {
-        this->_tex->clear();
+        this->_tex->clear(this->background);
         Ebb::Internals::activeCamera = this;
         for (Node *node : this->find_all<Ebb::Renderable>()) {
             (dynamic_cast<Ebb::Renderable *>(node))->draw();
         }
         this->Node::update();
     }
+
+    glm::vec3 background;
 private:
     unsigned int _width, _height;
     Ebb::RenderTexture *_tex;

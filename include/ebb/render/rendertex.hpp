@@ -3,6 +3,7 @@
 
 #include <ebb/render/renderable.hpp>
 #include <ebb/render/shader.hpp>
+#include <ebb/external/glm/glm.hpp>
 #include <ebb/internal/classutil.hpp>
 
 namespace Ebb {
@@ -30,6 +31,11 @@ public:
      * @brief Clear the render texture.
     */
     void clear();
+
+    /**
+     * @brief Clear the render texture to the specified color.
+    */
+    void clear(glm::vec3 color);
 private:
     unsigned int _fb_name;
     unsigned int _buf,_z_buf;

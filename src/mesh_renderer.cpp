@@ -75,8 +75,8 @@ void Ebb::MeshRenderer::draw() {
 }
 
 void Ebb::MeshRenderer::setup() {
-
+    this->Node::setup();
 }
 void Ebb::MeshRenderer::update() {
-
+    this->Node::update();
 }

@@ -82,10 +82,18 @@ void Ebb::RenderTexture::draw() {
     glBindTexture(GL_TEXTURE_2D, this->_buf);
     this->__shader.set_uniform<int>("_texture", 0);
 
+    glDisable(GL_DEPTH_TEST);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    glEnable(GL_DEPTH_TEST);
 }
 
 void Ebb::RenderTexture::clear() {
     this->bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Ebb::RenderTexture::clear(glm::vec3 color) {
+    this->bind();
+    glClearColor(color.x, color.y, color.z, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

@@ -6,6 +6,8 @@
 #include <string>
 #include <ebb/external/glm/glm.hpp>
 
+#define EBB_KEY(key) (GLFW_KEY_##key)
+
 namespace Ebb {
 /**
  * @brief Wrapper around GLFW3 window.
