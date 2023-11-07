@@ -17,3 +17,4 @@
 #include <ebb/external/glm/gtx/quaternion.hpp>
 #include <ebb/render/rendertex.hpp>
 #include <ebb/render/camera.hpp>
+#include <ebb/time.hpp>

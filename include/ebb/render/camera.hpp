@@ -22,7 +22,7 @@ public:
     }
 
     void update() {
-        this->_tex->bind();
+        this->_tex->clear();
         Ebb::Internals::activeCamera = this;
         for (Node *node : this->find_all<Ebb::Renderable>()) {
             (dynamic_cast<Ebb::Renderable *>(node))->draw();

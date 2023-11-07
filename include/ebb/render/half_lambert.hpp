@@ -13,7 +13,7 @@ uniform mat4 objectMatrix;
 uniform mat4 cameraMatrix;
 
 mat3 getNormalMatrix(mat4 modelMatrix) {
-    return mat3(transpose(inverse(modelMatrix)));
+    return mat3(transpose(modelMatrix));
 }
 
 vec3 transformNormal(vec3 normal, mat4 modelMatrix) {

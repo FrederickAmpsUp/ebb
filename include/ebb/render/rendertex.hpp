@@ -25,6 +25,11 @@ public:
      * @brief Draw the render texture to the screen.
     */
     void draw() override;
+
+    /**
+     * @brief Clear the render texture.
+    */
+    void clear();
 private:
     unsigned int _fb_name;
     unsigned int _buf,_z_buf;

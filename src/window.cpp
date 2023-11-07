@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <math.h>
 #include <ebb/error.hpp>
+#include <ebb/time.hpp>
 
 static void _window_size_callback(GLFWwindow *window, int width, int height) {
     Ebb::Window* instance = reinterpret_cast<Ebb::Window*>(glfwGetWindowUserPointer(window));
@@ -13,6 +14,7 @@ static void _window_size_callback(GLFWwindow *window, int width, int height) {
 
     // Setup GLAD and GLFW
 static void _glfw_init() {
+    Ebb::Time::_time_init();
     if (!glfwInit()) {
         Ebb::runtime_error(true, "Failed to initialize GLFW.\n");
     }

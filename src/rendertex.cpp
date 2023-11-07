@@ -70,7 +70,6 @@ Ebb::RenderTexture::RenderTexture(Ebb::Node *parent, unsigned int width, unsigne
 void Ebb::RenderTexture::bind() {
     glBindFramebuffer(GL_FRAMEBUFFER, this->_fb_name);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
-    glClear(GL_DEPTH_BUFFER_BIT);
 
     glViewport(0,0, this->_width, this->_height);
 }
@@ -84,4 +83,9 @@ void Ebb::RenderTexture::draw() {
     this->__shader.set_uniform<int>("_texture", 0);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Ebb::RenderTexture::clear() {
+    this->bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

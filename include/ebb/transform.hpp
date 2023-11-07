@@ -77,6 +77,14 @@ public:
         this->_transform_matrix = glm::scale(this->_transform_matrix, scale);
     }
 
+    void translation(glm::vec3 pos) {
+        this->_transform_matrix[3] = glm::vec4(pos, 1.0);
+    }
+    void rotation(glm::vec3 euler) {
+        this->_transform_matrix = glm::translate(glm::mat4(1.0f), this->position()) *
+                     (glm::mat4(1.0f) * glm::eulerAngleXYZ(glm::radians(euler.x), glm::radians(euler.y), glm::radians(euler.z))) *
+                     glm::scale(glm::mat4(1.0f), this->scale());
+    }
 private:
     glm::mat4x4 _transform_matrix;
     getter(_transform_matrix);

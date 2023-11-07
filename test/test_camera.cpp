@@ -5,6 +5,7 @@
 
 Ebb::Node *root;
 Ebb::Window *win;
+Ebb::Object *suzanne;
 void frame_callback() {
     if (win->key_pressed(GLFW_KEY_ESCAPE)) {
         win->close();  // close the window when escape is pressed
@@ -13,6 +14,8 @@ void frame_callback() {
     root->update();  // update the node tree
     win->clear(glm::vec3(1.0));  // clear the window
     root->get_child<Ebb::Camera>()->get_tex()->draw();  // draw the camera's render texture to the window
+
+    suzanne->transform.rotation(glm::vec3(0.0, glm::degrees(Ebb::Time::elapsed_seconds()), 0.0));
 }
 
 int main(int argc, char **argv) {
@@ -23,7 +26,7 @@ int main(int argc, char **argv) {
     Ebb::Camera *cam = new Ebb::Camera(root, WIDTH*2, HEIGHT*2, 60);  // create a camera (FOV 60)
     cam->transform.translate(glm::vec3(0, 0, -3));  // move back
     Ebb::Mesh *obj = new Ebb::Mesh("models/suzanne.ebbm");  // load in a  mesh
-    Ebb::Object *suzanne = new Ebb::Object(root);  // empty object to house suzanne
+    suzanne = new Ebb::Object(root);  // empty object to house suzanne
 
         // TODO: figure out why the light's z-axis is inverted
     Ebb::Component *mesh = new Ebb::MeshRenderer(suzanne, new Ebb::Shaders::BlinnPhong(  // mesh renderer for suzanne, with a shiny blue material
