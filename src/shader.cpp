@@ -34,6 +34,9 @@ Ebb::FragmentShader::FragmentShader(const char *src) {
 
 Ebb::Shader::Shader(const char *vtx_src, const char *frg_src) {
     this->_program_id = glCreateProgram();
+
+    this->_vsh = new VertexShader(vtx_src);
+    this->_fsh = new FragmentShader(vtx_src);
     
     this->_vsh_id = glCreateShader(GL_VERTEX_SHADER  );
     this->_fsh_id = glCreateShader(GL_FRAGMENT_SHADER);

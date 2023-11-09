@@ -6,6 +6,7 @@
 #include <ebb/external/glm/glm.hpp>
 #include <ebb/external/glm/gtc/type_ptr.hpp>
 #include <stdio.h>
+#include <new>
 #include <ebb/internal/classutil.hpp>
 
 namespace Ebb {
@@ -21,9 +22,19 @@ public:
 
     virtual void save(FILE *file) {
         fputs(this->_src, file);
+        fputc('\0', file);
     }
     virtual void load(FILE *file) {
-        
+        long startPos = ftell(file);
+        char c;
+        while ((c = fgetc(file)));
+        long endPos = ftell(file);
+        fseek(file, startPos, SEEK_SET);
+        int stringLength = endPos - startPos;
+
+        char *buf = (char *)malloc(stringLength);
+        fread(buf, stringLength, 1, file);
+        new (this) VertexShader(buf);
     }
 private:
     unsigned int _id;
@@ -40,11 +51,24 @@ public:
      * This compiles the shader.
      * @param src A C-string containing the shader source.
     */
-   FragmentShader(const char *src="");
+    FragmentShader(const char *src="");
 
-   virtual void save(FILE *file) {
+    virtual void save(FILE *file) {
+        fputs(this->_src, file);
+        fputc('\0', file);
+    }
+    virtual void load(FILE *file) {
+        long startPos = ftell(file);
+        char c;
+        while ((c = fgetc(file)));
+        long endPos = ftell(file);
+        fseek(file, startPos, SEEK_SET);
+        int stringLength = endPos - startPos;
 
-   }
+        char *buf = (char *)malloc(stringLength);
+        fread(buf, stringLength, 1, file);
+        new (this) FragmentShader(buf);
+    }
 private:
     unsigned int _id;
     getter(_id)
@@ -98,8 +122,13 @@ template <typename T>
     }
 
     virtual void save(FILE *file) {
+        printf("shader save\n");
         this->_vsh->save(file);
         this->_fsh->save(file);
+    }
+    virtual void load(FILE *file) {
+        this->_vsh->load(file);
+        this->_fsh->load(file);
     }
 
 private:
@@ -107,7 +136,8 @@ private:
     getter(_program_id)
     unsigned int _vsh_id, _fsh_id;
 
-    VertexShader *_vsh, *_fsh;
+    VertexShader *_vsh;
+    FragmentShader *_fsh;
     getter(_vsh)
     getter(_fsh)
 

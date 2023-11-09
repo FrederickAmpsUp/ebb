@@ -34,6 +34,7 @@ public:
     }
 
     virtual void save(FILE *file) override {
+        printf("object save\n");
         this->Node::save(file);
         glm::mat4x4 mat = this->transform.get_transform_matrix(); // save the transformation matrix
         fwrite(&mat, sizeof(mat), 1, file);
