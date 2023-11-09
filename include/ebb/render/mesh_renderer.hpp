@@ -7,19 +7,30 @@
 #include <ebb/render/shader.hpp>
 #include <ebb/external/glm/glm.hpp>
 #include <ebb/mesh.hpp>
+#include <stdio.h>
 #include <ebb/internal/classutil.hpp>
 
 namespace Ebb {
 
 class MeshRenderer : public Ebb::Renderable {
 public:
-    MeshRenderer(Ebb::Node *parent, Ebb::Shader *shader, Ebb::Mesh *mesh);
+    MeshRenderer(Ebb::Node *parent, Ebb::Shader *shader = nullptr, Ebb::Mesh *mesh = nullptr);
 
     void draw() override;
 
     void setup()  override;
     void update() override;
+
+    virtual void save(FILE *file) override {
+        this->Node::save(file);
+        this->_mesh->save(file);
+        this->_shader->save(file);
+
+    }
 private:
+    Ebb::Mesh *_mesh;
+    getter(_mesh);
+
     unsigned int VAO, VBO;
     unsigned int EBO;
 

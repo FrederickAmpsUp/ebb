@@ -161,6 +161,10 @@ template<typename T>
         }
     }
 
+    /**
+     * @brief Load the node and its children from a file.
+     * This may be overloaded, however, this->Node::load() must be called at the BEGINNING of the overloaded routine
+    */
     virtual void load(FILE *file) {
         char buf[4];
         fread(buf, 4, 1, file);

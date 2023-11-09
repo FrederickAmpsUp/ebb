@@ -5,6 +5,7 @@
 #include <ebb/error.hpp>
 #include <ebb/external/glm/glm.hpp>
 #include <ebb/external/glm/gtc/type_ptr.hpp>
+#include <stdio.h>
 #include <ebb/internal/classutil.hpp>
 
 namespace Ebb {
@@ -16,10 +17,20 @@ public:
      * This compiles the shader.
      * @param src A C-string containing the shader source.
     */
-    VertexShader(const char *src);
+    VertexShader(const char *src="");
+
+    virtual void save(FILE *file) {
+        fputs(this->_src, file);
+    }
+    virtual void load(FILE *file) {
+        
+    }
 private:
     unsigned int _id;
     getter(_id)
+
+    char *_src;
+    getter(_src)
 };
 
 class FragmentShader {
@@ -29,10 +40,17 @@ public:
      * This compiles the shader.
      * @param src A C-string containing the shader source.
     */
-   FragmentShader(const char *src);
+   FragmentShader(const char *src="");
+
+   virtual void save(FILE *file) {
+
+   }
 private:
     unsigned int _id;
     getter(_id)
+
+    char *_src;
+    getter(_src)
 };
 
 class Shader {
@@ -43,8 +61,8 @@ public:
      * @param vtx_src A C-string containing the vertex shader source.
      * @param frg_src A C-string containing the fragment shader source.
     */
-    Shader(const char *vtx_src, 
-           const char *frg_src);
+    Shader(const char *vtx_src="", 
+           const char *frg_src="");
 
     /**
      * @brief Shader constructor.
@@ -78,10 +96,20 @@ template <typename T>
     virtual void use() {
         glUseProgram(this->_program_id);
     }
+
+    virtual void save(FILE *file) {
+        this->_vsh->save(file);
+        this->_fsh->save(file);
+    }
+
 private:
     unsigned int _program_id;
     getter(_program_id)
     unsigned int _vsh_id, _fsh_id;
+
+    VertexShader *_vsh, *_fsh;
+    getter(_vsh)
+    getter(_fsh)
 
     void _uniform(int location, int value) {
         glUniform1i(location, value);

@@ -8,6 +8,10 @@
 Ebb::MeshRenderer::MeshRenderer(Ebb::Node *parent, Ebb::Shader *shader, Ebb::Mesh *mesh) : Ebb::Renderable(parent) {
     // TODO: load the mesh into VAO, VBO and EBO
 
+    this->_shader = shader;
+    this->_mesh = mesh;
+
+    if (!mesh) return;
     glGenVertexArrays(1, &this->VAO);
     glGenBuffers(1, &this->VBO);
     glGenBuffers(1, &this->EBO);
@@ -60,8 +64,6 @@ Ebb::MeshRenderer::MeshRenderer(Ebb::Node *parent, Ebb::Shader *shader, Ebb::Mes
 
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
-
-    this->_shader = shader;
 }
 
 void Ebb::MeshRenderer::draw() {

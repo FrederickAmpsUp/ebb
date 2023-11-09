@@ -12,7 +12,7 @@ namespace Ebb {
 
 class Camera : public Object {
 public:
-    Camera(Ebb::Node *parent, unsigned int pixelWidth, unsigned int pixelHeight, float fov) : Object(parent) {
+    Camera(Ebb::Node *parent, unsigned int pixelWidth = 800, unsigned int pixelHeight = 600, float fov = 60) : Object(parent) {
         this->background = glm::vec3(0.0);
         this->_width = pixelWidth;
         this->_height = pixelHeight;

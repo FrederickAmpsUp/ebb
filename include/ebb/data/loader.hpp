@@ -1,7 +1,7 @@
 #ifndef LOADER_HPP
 #define LOADER_HPP
 
-
+#include <ebb/error.hpp>
 namespace Ebb {
 class Node;
 

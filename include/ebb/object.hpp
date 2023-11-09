@@ -4,6 +4,7 @@
 #include <ebb/external/glm/glm.hpp>
 #include <ebb/node.hpp>
 #include <ebb/transform.hpp>
+#include <stdio.h>
 #include <ebb/internal/classutil.hpp>
 
 namespace Ebb {
@@ -31,6 +32,20 @@ public:
         if (dynamic_cast<Object *>(this->get_parent()) != nullptr) return dynamic_cast<Object *>(this->get_parent())->world_pos() * this->transform;
         return this->transform;
     }
+
+    virtual void save(FILE *file) override {
+        this->Node::save(file);
+        glm::mat4x4 mat = this->transform.get_transform_matrix(); // save the transformation matrix
+        fwrite(&mat, sizeof(mat), 1, file);
+    }
+
+    virtual void load(FILE *file) override {
+        this->Node::load(file);
+        glm::mat4x4 mat;
+        fread(&mat, sizeof(mat), 1, file); // load the transformation matrix
+        this->transform = { mat };
+    }
+
     Ebb::Transform transform;
 private:
 }; // end class Object

@@ -1,6 +1,8 @@
 #include <ebb/render/shader.hpp>
 
 Ebb::VertexShader::VertexShader(const char *src) {
+    this->_src = (char *)src;
+    if (*src == '\0') return;
     this->_id = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(this->_id, 1, &src, NULL);
     glCompileShader(this->_id);
@@ -15,6 +17,8 @@ Ebb::VertexShader::VertexShader(const char *src) {
 }
 
 Ebb::FragmentShader::FragmentShader(const char *src) {
+    this->_src = (char *)src;
+    if (*src == '\0') return;
     this->_id = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(this->_id, 1, &src, NULL);
     glCompileShader(this->_id);
