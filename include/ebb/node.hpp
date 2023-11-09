@@ -153,6 +153,8 @@ template<typename T>
     virtual void save(FILE *file) {
         int nChildren = this->_children.size();
         fwrite(&nChildren, sizeof(int), 1, file); // Write the number of children to the file
+        int type = Ebb::Data::node_type(this);
+        fwrite(&type, sizeof(int), 1, file); // Write the typeid of this node to the file
 
         for (Node *child : this->_children) {
             child->save(file);
