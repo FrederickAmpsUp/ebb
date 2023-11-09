@@ -1,7 +1,7 @@
 #include <ebb/basic.hpp>
 
-#define WIDTH  800
-#define HEIGHT 600
+#define WIDTH  2256
+#define HEIGHT 1504
 
 Ebb::Node *root;
 Ebb::Window *win;
@@ -21,7 +21,7 @@ void frame_callback() {
 }
 
 int main(int argc, char **argv) {
-    win = new Ebb::Window(WIDTH, HEIGHT, "Camera test", &frame_callback);  // create a window
+    win = new Ebb::Window("Camera test", &frame_callback);  // create a window
 
     root = new Ebb::Node(nullptr);  // root of the node tree
         // Multiplying width and height by 2 gives pretty cheap antialiasing (due to linear texture filtering from the camera texture to the screen)

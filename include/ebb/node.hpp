@@ -17,7 +17,7 @@ public:
      * @brief Constructor
      * @param parent The parent node. If this is NULL, the node is at the root of the tree.
     */
-    Node(Node *parent) : _parent(parent) {
+    Node(Node *parent = nullptr) : _parent(parent) {
         if (parent != nullptr) parent->add_child(this);
     }
 
@@ -143,6 +143,8 @@ template<typename T>
             child->update();
         }
     }
+
+    // TODO: Implement save & load functions
 
 private:
     std::vector<Node *> _children;
