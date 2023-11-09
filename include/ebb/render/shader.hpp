@@ -122,7 +122,6 @@ template <typename T>
     }
 
     virtual void save(FILE *file) {
-        printf("shader save\n");
         this->_vsh->save(file);
         this->_fsh->save(file);
     }

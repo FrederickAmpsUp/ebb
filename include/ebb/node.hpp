@@ -151,7 +151,6 @@ template<typename T>
      * This may be overloaded, however, this->Node::save() must be called at the BEGINNING of the overloaded routine
     */
     virtual void save(FILE *file) {
-        printf("node save\n");
         int nChildren = this->_children.size();
         fwrite(&nChildren, sizeof(int), 1, file); // Write the number of children to the file
         int type = Ebb::Data::node_type(this);

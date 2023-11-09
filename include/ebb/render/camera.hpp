@@ -44,7 +44,6 @@ public:
     void save(FILE *file) override {
         this->Node::save(file);
             // TODO
-        printf("camera save :(\n");
     }
 
     glm::vec3 background;

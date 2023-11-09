@@ -34,17 +34,17 @@ public:
     }
 
     virtual void save(FILE *file) override {
-        printf("object save\n");
         this->Node::save(file);
         glm::mat4x4 mat = this->transform.get_transform_matrix(); // save the transformation matrix
         fwrite(&mat, sizeof(mat), 1, file);
     }
 
     virtual void load(FILE *file) override {
+        printf("object load\n");
         this->Node::load(file);
         glm::mat4x4 mat;
         fread(&mat, sizeof(mat), 1, file); // load the transformation matrix
-        this->transform = { mat };
+        this->transform = Ebb::Transform(mat);
     }
 
     Ebb::Transform transform;

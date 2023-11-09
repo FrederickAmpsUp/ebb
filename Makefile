@@ -46,7 +46,7 @@ $(TEST_OUTS): $(BIN_DIR)%: $(TEST_DIR)%.cpp
 	@$(CC) $(CCARGS) $(LDARGS) -I$(INCLUDE_PATH) -L$(BASE_PATH)$(LIB_DIR) -l$(basename $(patsubst lib%,%,$(LIB_FINAL))) $< -o $@
 	@echo "Built $@"
 	@echo "Running test $@"
-	@$@
+	@gdb $@
 
 
 libs: $(LIB_OUTS)
