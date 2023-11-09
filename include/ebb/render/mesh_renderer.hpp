@@ -22,11 +22,9 @@ public:
     void update() override;
 
     virtual void save(FILE *file) override {
-        printf("Mesh renderer save\n");
         this->Node::save(file);
         this->_mesh->save(file);
         this->_shader->save(file);
-
     }
 private:
     Ebb::Mesh *_mesh;
