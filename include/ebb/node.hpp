@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <bits/stdc++.h>
+#include <stdio.h>
+#include <ebb/data/loader.hpp>
 #include <ebb/internal/classutil.hpp>
 
 namespace Ebb {
@@ -141,6 +143,32 @@ template<typename T>
     virtual void update() {
         for (Node *child : this->_children) {
             child->update();
+        }
+    }
+
+    /**
+     * @brief Save the node to a file.
+     * This may be overloaded, however, this->Node::save() must be called at the BEGINNING of the overloaded routine
+    */
+    virtual void save(FILE *file) {
+        int nChildren = this->_children.size();
+        fwrite(&nChildren, sizeof(int), 1, file); // Write the number of children to the file
+
+        for (Node *child : this->_children) {
+            child->save(file);
+        }
+    }
+
+    virtual void load(FILE *file) {
+        char buf[4];
+        fread(buf, 4, 1, file);
+        int nChildren = *((int *)buf);
+
+        for (int i = 0; i < nChildren; ++i) {
+            fread(buf, 4, 1, file);
+            int type = *((int *)buf);
+            Node *node = Ebb::Data::instantiate_node(type, this);
+            node->load(file);
         }
     }
 
