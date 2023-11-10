@@ -1,14 +1,4 @@
 #include <ebb/basic.hpp>
-#include <ebb/data/loader.hpp>
-
-int Ebb::Data::node_type(Ebb::Node *node) {
-    Ebb::runtime_error(true, "Saving/loading is not supported with this program.\n");
-    return 0;
-}
-Ebb::Node *Ebb::Data::instantiate_node(int type, Ebb::Node *parent) {
-    Ebb::runtime_error(true, "Saving/loading is not supported with this program.\n");
-    return nullptr;
-}
 #define WIDTH  2256
 #define HEIGHT 1504
 

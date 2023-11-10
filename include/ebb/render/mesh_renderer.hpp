@@ -22,9 +22,14 @@ public:
     void update() override;
 
     virtual void save(FILE *file) override {
-        this->Node::save(file);
+        this->Renderable::save(file);
         this->_mesh->save(file);
         this->_shader->save(file);
+    }
+    virtual void load(FILE *file) override {
+        this->Renderable::load(file);
+        this->_mesh->load(file);
+        this->_shader->load(file);
     }
 private:
     Ebb::Mesh *_mesh;

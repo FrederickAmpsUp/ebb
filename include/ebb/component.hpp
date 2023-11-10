@@ -10,6 +10,10 @@ namespace Ebb {
 class Component : public Ebb::Node {
 public:
     using Ebb::Node::Node; // inherited constructors
+
+    virtual Node *construct(Node *parent) override {
+        return new Component(parent);
+    }
 private:
 
 }; // end class Component

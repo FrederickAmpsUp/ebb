@@ -6,6 +6,7 @@
 #include <ebb/external/glm/glm.hpp>
 #include <ebb/external/glm/gtc/matrix_transform.hpp>
 #include <ebb/internal/internals.hpp>
+#include <new>
 #include <ebb/internal/classutil.hpp>
 
 namespace Ebb {
@@ -32,7 +33,7 @@ public:
         this->_proj_matrix = glm::perspective(glm::radians(fov), (float)pixelWidth / (float)pixelHeight, 0.1f, 100.0f);
     }
 
-    void update() override {
+    virtual void update() override {
         this->_tex->clear(this->background);
         Ebb::Internals::activeCamera = this;
         for (Node *node : this->find_all<Ebb::Renderable>()) {
@@ -41,9 +42,27 @@ public:
         this->Node::update();
     }
 
-    void save(FILE *file) override {
-        this->Node::save(file);
-            // TODO
+    virtual void save(FILE *file) override {
+        this->Object::save(file);
+        fwrite(&this->background, sizeof(glm::vec3), 1, file);
+        fwrite(&this->_width, sizeof(unsigned int), 1, file);
+        fwrite(&this->_height, sizeof(unsigned int), 1, file);
+        this->_tex->save(file);
+        fwrite(&this->_proj_matrix, sizeof(glm::mat4), 1, file);
+    }
+    virtual void load(FILE *file) override {
+        this->Object::load(file);
+        fread(&this->background, sizeof(glm::vec3), 1, file);
+        fread(&this->_width, sizeof(unsigned int), 1, file);
+        fread(&this->_height, sizeof(unsigned int), 1, file);
+        this->_tex->load(file);
+        fread(&this->_proj_matrix, sizeof(glm::mat4), 1, file);
+        float fov = 2.0f * atan(1.0f / this->_proj_matrix[1][1]);
+        new (this) Camera(this->get_parent(), this->_width, this->_height, glm::degrees(fov), this->background);
+    }
+
+    virtual Node *construct(Node *parent) override {
+        return new Camera(parent);
     }
 
     glm::vec3 background;

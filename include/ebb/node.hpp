@@ -4,7 +4,11 @@
 #include <vector>
 #include <bits/stdc++.h>
 #include <stdio.h>
-#include <ebb/data/loader.hpp>
+#include <map>
+#include <functional>
+#include <typeinfo>
+#include <type_traits>
+#include <ebb/error.hpp>
 #include <ebb/internal/classutil.hpp>
 
 namespace Ebb {
@@ -147,40 +151,83 @@ template<typename T>
     }
 
     /**
+     * @brief Construct a new node. This must be overloaded in derived classes, returning a new node of the derived type.
+    */
+    virtual Node *construct(Node *parent) {
+        return new Node(parent);
+    }
+
+    /**
      * @brief Save the node to a file.
-     * This may be overloaded, however, this->Node::save() must be called at the BEGINNING of the overloaded routine
+     * This may be overloaded, however, this-><super>::save() must be called at the BEGINNING of the overloaded routine
     */
     virtual void save(FILE *file) {
         int nChildren = this->_children.size();
         fwrite(&nChildren, sizeof(int), 1, file); // Write the number of children to the file
-        int type = Ebb::Data::node_type(this);
-        fwrite(&type, sizeof(int), 1, file); // Write the typeid of this node to the file
+
+        size_t type = typeid(*this).hash_code();
+        if (__registry.count(type) == 0)
+            Node::register_type(type, 
+                [this](Node *parent) { return this->construct(parent); });
+        fwrite(&type, sizeof(size_t), 1, file); // Write the typeid of this node to the file
+        printf("Saved node with typeid 0x%lx [%s]\n", type, typeid(*this).name());
 
         for (Node *child : this->_children) {
-            child->save(file);
+            child->save(file);  // Write children to the file
         }
     }
 
     /**
      * @brief Load the node and its children from a file.
-     * This may be overloaded, however, this->Node::load() must be called at the BEGINNING of the overloaded routine
+     * This may be overloaded, however, this-><super>::load() must be called at the BEGINNING of the overloaded routine
     */
     virtual void load(FILE *file) {
-        char buf[4];
-        fread(buf, 4, 1, file);
+        char buf[sizeof(size_t)];
+        fread(buf, sizeof(int), 1, file);
         int nChildren = *((int *)buf);
+        printf("%d\n", nChildren);
 
         for (int i = 0; i < nChildren; ++i) {
-            fread(buf, 4, 1, file);
-            int type = *((int *)buf);
-            Node *node = Ebb::Data::instantiate_node(type, this);
+            fread(buf, sizeof(size_t), 1, file);
+            size_t type = *((size_t *)buf);
+            Node *node = Node::create(type, this);
             node->load(file);
         }
+    }
+
+    using FactoryFn = std::function<Node *(Node *)>;
+    using TypeRegistry = std::map<size_t, FactoryFn>;
+
+    /**
+     * @brief Create a new node with the given type hash and parent.
+     * Returns nullptr if the type hash is not registered (see Ebb::Node::register_type()).
+    */
+    static Node *create(size_t typeHash, Node *parent) {
+        if (__registry.count(typeHash) != 0) {
+            printf("Found node with typeid 0x%lx\n", typeHash);
+            return (__registry.at(typeHash))(parent);
+        }
+        Ebb::runtime_error(true, "Failed to create node with typeid 0x%lx\n", typeHash);
+        return nullptr;
+    }
+
+    /**
+     * @brief Register a new type in the node registry.
+    */
+    static void register_type(size_t typeHash, FactoryFn fac) {
+       __registry.insert(std::make_pair(typeHash, fac));
+    }
+
+template <typename T, typename = std::enable_if_t<std::is_base_of<Node, T>::value>>
+    static void register_type() {
+        __registry.insert(std::make_pair(typeid(T).hash_code(), [](Node *parent) { return (new T(nullptr))->construct(parent); }));
     }
 
 private:
     std::vector<Node *> _children;
     Node *_parent;
+
+    static TypeRegistry __registry;
 
         // Getters
     getter(_children)

@@ -22,7 +22,8 @@ void main() {
 }
 )";
 
-Ebb::RenderTexture::RenderTexture(Ebb::Node *parent, unsigned int width, unsigned int height) : Ebb::Renderable(parent), __shader(rtex_vert_src, rtex_frag_src) {
+Ebb::RenderTexture::RenderTexture(Ebb::Node *parent, unsigned int width, unsigned int height) : Ebb::Renderable(parent) {
+    this->__shader = new Ebb::Shader(rtex_vert_src, rtex_frag_src);
     this->_width  =  width;
     this->_height = height;
 
@@ -76,11 +77,11 @@ void Ebb::RenderTexture::bind() {
 
 void Ebb::RenderTexture::draw() {
     glBindVertexArray(this->__VAO);
-    this->__shader.use();
+    this->__shader->use();
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, this->_buf);
-    this->__shader.set_uniform<int>("_texture", 0);
+    this->__shader->set_uniform<int>("_texture", 0);
 
     glDisable(GL_DEPTH_TEST);
     glDrawArrays(GL_TRIANGLES, 0, 6);

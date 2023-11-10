@@ -1,41 +1,6 @@
 #include <ebb/basic.hpp>
-#include <ebb/data/loader.hpp>
-
 #define WIDTH  2256
 #define HEIGHT 1504
-
-typedef enum {
-    NODE,
-    OBJECT,
-    MESH_RENDERER,
-    CAMERA
-} UsedTypes;
-
-Ebb::Node *Ebb::Data::instantiate_node(int type, Node *parent) {
-    switch (type) {
-        case NODE:
-            return new Ebb::Node(parent);
-        case OBJECT:
-            return new Ebb::Object(parent);
-        case MESH_RENDERER:
-            return new Ebb::MeshRenderer(parent);
-        case CAMERA:
-            return new Ebb::Camera(parent);
-        default:
-            Ebb::runtime_error(true, "Invalid node type.\n");
-    }
-    return nullptr;
-}
-
-int Ebb::Data::node_type(Node *node) {
-    if (dynamic_cast<Ebb::Camera *>(node))       return CAMERA;
-    if (dynamic_cast<Ebb::MeshRenderer *>(node)) return MESH_RENDERER;
-    if (dynamic_cast<Ebb::Object *>(node))       return OBJECT;
-    if (dynamic_cast<Ebb::Node *>(node))         return NODE;
-
-    Ebb::runtime_error(true, "Invalid node type.\n");
-    return 0;
-}
 
 Ebb::Node *root;
 Ebb::Window *win;
@@ -58,12 +23,29 @@ int main(int argc, char **argv) {
     win = new Ebb::Window("Serialization test", &frame_callback);  // create a window
 
     root = new Ebb::Node(nullptr);  // root of the node tree
+    Ebb::Node::register_type<Ebb::Node>();
+    Ebb::Node::register_type<Ebb::Object>();
+    Ebb::Node::register_type<Ebb::Component>();
+    Ebb::Node::register_type<Ebb::MeshRenderer>();
+    Ebb::Node::register_type<Ebb::Renderable>();
+    Ebb::Node::register_type<Ebb::RenderTexture>();
+    Ebb::Node::register_type<Ebb::Camera>();
+    
     FILE *f = fopen("data/test_serialize.ebb", "rb");
     if (!f) {
         Ebb::runtime_error(true, "Couldn't open node tree file.\n");
     }
     root->load(f);
     fclose(f);
+    printf("%d\n", root->get_children().size());
+
+    glm::vec3 pos = root->get_child<Ebb::Camera>()->transform.position();
+    printf("%f %f %f\n", pos.x, pos.y, pos.z);
+
+    suzanne = root->get_child<Ebb::Object>();
+    if (dynamic_cast<Ebb::Camera *>(suzanne)) suzanne = root->get_child<Ebb::Object>(1);
+
+    printf("%f %f %f\n", suzanne->transform.position().x, suzanne->transform.position().y, suzanne->transform.position().z);
 
     root->setup();  // setup the node tree
 

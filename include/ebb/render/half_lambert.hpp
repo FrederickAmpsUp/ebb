@@ -2,6 +2,7 @@
 #define HALF_LAMBERT_HPP
 
 #include <ebb/render/shader.hpp>
+#include <stdio.h>
 #include <ebb/external/glm/glm.hpp>
 
 static const char * const _hlamb_vsh_src = R"(
@@ -83,6 +84,21 @@ public:
         this->set_uniform<glm::vec3>("ambient", this->ambient);
 
         this->set_uniform<glm::vec3>("diffuseCol", this->diffuseCol);
+    }
+
+    void save(FILE *file) override {
+        this->Shader::save(file);
+        fwrite(&this->lightPos, sizeof(glm::vec3), 1, file);
+        fwrite(&this->lightCol, sizeof(glm::vec3), 1, file);
+        fwrite(&this->ambient, sizeof(glm::vec3), 1, file);
+        fwrite(&this->diffuseCol, sizeof(glm::vec3), 1, file);
+    }
+    void load(FILE *file) override {
+        this->Shader::load(file);
+        fread(&this->lightPos, sizeof(glm::vec3), 1, file);
+        fread(&this->lightCol, sizeof(glm::vec3), 1, file);
+        fread(&this->ambient, sizeof(glm::vec3), 1, file);
+        fread(&this->diffuseCol, sizeof(glm::vec3), 1, file);
     }
 private:
     glm::vec3 diffuseCol;

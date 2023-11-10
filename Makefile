@@ -1,6 +1,6 @@
 CC=clang++         # C++ compiler to use
 COMPILE_ARGS=-c    # Arguments to compile libraries
-CCARGS=-g -Wno-c++17-extensions		       # Additional arguments (optimizations, debug, warnings, etc)
+CCARGS=-g -Wno-c++17-extensions	-Wno-dangling-gsl	       # Additional arguments (optimizations, debug, warnings, etc)
 LDARGS=-lGL -lglfw -lglad -lGLU # Extra libraries
 INCLUDE_PATH=/home/frederickampsup/Documents/ebb/include  # Path to include directory  \
 														[TODO: figure out how to make clang++ like relative include paths]
