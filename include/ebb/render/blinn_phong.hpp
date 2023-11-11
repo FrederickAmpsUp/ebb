@@ -118,7 +118,8 @@ public:
         this->set_uniform<glm::vec3>("cameraPos", _get_camera_pos());
     }
 
-    void save(FILE *file) override {
+    virtual void save(FILE *file) override {
+        printf("blinn-phong save\n");
         this->Shader::save(file);
         fwrite(&this->lightPos, sizeof(glm::vec3), 1, file);
         fwrite(&this->lightCol, sizeof(glm::vec3), 1, file);
@@ -129,7 +130,8 @@ public:
         fwrite(&this->specularCol, sizeof(glm::vec3), 1, file);
         fwrite(&this->shininess, sizeof(float), 1, file);
     }
-    void load(FILE *file) override {
+    virtual void load(FILE *file) override {
+        printf("blinn-phong load\n");
         this->Shader::load(file);
         fread(&this->lightPos, sizeof(glm::vec3), 1, file);
         fread(&this->lightCol, sizeof(glm::vec3), 1, file);

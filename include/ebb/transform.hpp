@@ -88,6 +88,7 @@ public:
 private:
     glm::mat4x4 _transform_matrix;
     getter(_transform_matrix);
+    setter(_transform_matrix)
 }; // end class Transform
 }; // end namespace Ebb
 

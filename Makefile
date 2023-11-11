@@ -38,7 +38,13 @@ default:
 	@echo "TODO: more complete makefile"
 	@echo "Current line count: $(shell find ./** -not -path "./include/ebb/external/*" -type f \( -name "*.cpp" -o -name "*.hpp" \) -exec cat {} \; | wc -l)"
 
-test: libs $(TEST_OUTS)
+test: init libs $(TEST_OUTS)
+
+init:
+	rm -rf lib/
+	rm -f bin/test_serialize
+	rm -f bin/test_deserialize
+
 
 $(TEST_OUTS): $(BIN_DIR)%: $(TEST_DIR)%.cpp
 	@echo "Building test file $<"

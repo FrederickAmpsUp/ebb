@@ -18,7 +18,7 @@ public:
      * This compiles the shader.
      * @param src A C-string containing the shader source.
     */
-    VertexShader(const char *src="");
+    VertexShader(const char *src=nullptr);
 
     virtual void save(FILE *file) {
         fputs(this->_src, file);
@@ -51,7 +51,7 @@ public:
      * This compiles the shader.
      * @param src A C-string containing the shader source.
     */
-    FragmentShader(const char *src="");
+    FragmentShader(const char *src=nullptr);
 
     virtual void save(FILE *file) {
         fputs(this->_src, file);
@@ -85,8 +85,8 @@ public:
      * @param vtx_src A C-string containing the vertex shader source.
      * @param frg_src A C-string containing the fragment shader source.
     */
-    Shader(const char *vtx_src="", 
-           const char *frg_src="");
+    Shader(const char *vtx_src=nullptr, 
+           const char *frg_src=nullptr);
 
     /**
      * @brief Shader constructor.
@@ -126,8 +126,14 @@ template <typename T>
         this->_fsh->save(file);
     }
     virtual void load(FILE *file) {
+        printf("shader load\n");
+        this->_vsh = new VertexShader();
         this->_vsh->load(file);
+        printf("%s\n\n", this->_vsh->get_src());
+        this->_fsh = new FragmentShader();
         this->_fsh->load(file);
+        printf("%s\n\n", this->_fsh->get_src());
+        new (this) Shader(this->_vsh, this->_fsh);
     }
 
 private:

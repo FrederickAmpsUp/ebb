@@ -165,14 +165,13 @@ template<typename T>
         int nChildren = this->_children.size();
         fwrite(&nChildren, sizeof(int), 1, file); // Write the number of children to the file
 
-        size_t type = typeid(*this).hash_code();
-        if (__registry.count(type) == 0)
-            Node::register_type(type, 
-                [this](Node *parent) { return this->construct(parent); });
-        fwrite(&type, sizeof(size_t), 1, file); // Write the typeid of this node to the file
-        printf("Saved node with typeid 0x%lx [%s]\n", type, typeid(*this).name());
-
         for (Node *child : this->_children) {
+            size_t type = typeid(*child).hash_code();
+            if (__registry.count(type) == 0)
+                Node::register_type(type, 
+                    [child](Node *parent) { return child->construct(parent); });
+            fwrite(&type, sizeof(size_t), 1, file); // Write the typeid of this node to the file
+            printf("Saved node with typeid 0x%lx [%s]\n", type, typeid(*child).name());
             child->save(file);  // Write children to the file
         }
     }
@@ -204,7 +203,7 @@ template<typename T>
     */
     static Node *create(size_t typeHash, Node *parent) {
         if (__registry.count(typeHash) != 0) {
-            printf("Found node with typeid 0x%lx\n", typeHash);
+            printf("Found node with typeid 0x%lx [%s]\n", typeHash, typeid(*((__registry.at(typeHash)))(parent)).name());
             return (__registry.at(typeHash))(parent);
         }
         Ebb::runtime_error(true, "Failed to create node with typeid 0x%lx\n", typeHash);

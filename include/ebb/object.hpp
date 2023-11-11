@@ -43,14 +43,16 @@ public:
         printf("object load\n");
         this->Node::load(file);
         glm::mat4x4 mat;
-        fread(&mat, sizeof(mat), 1, file); // load the transformation matrix
+        fread(&mat, sizeof(glm::mat4x4), 1, file); // load the transformation matrix
         for (int row = 0; row < 4; row++) {
             for (int col = 0; col < 4; col++) {
                 printf("%f ", mat[row][col]);
             }
             printf("\n");
         }
-        this->transform = Ebb::Transform(mat);
+        this->transform.set_transform_matrix(mat);
+        glm::vec3 pos = this->transform.position();
+        printf("%f %f %f\n", pos.x, pos.y, pos.z);
     }
 
     virtual Node *construct(Node *parent) override {

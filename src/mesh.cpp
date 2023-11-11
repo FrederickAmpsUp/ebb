@@ -5,7 +5,7 @@
 Ebb::Mesh::Mesh(const char *filename) {
     FILE *file = fopen(filename, "rb");
     if (!file) {
-        Ebb::runtime_error(true, "Failed to open ebb mesh file \"%s\".\n", filename);
+        return;
     }
 
     char byte;

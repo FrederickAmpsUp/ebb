@@ -27,13 +27,19 @@ public:
         this->_shader->save(file);
     }
     virtual void load(FILE *file) override {
+        printf("meshrenderer load\n");
         this->Renderable::load(file);
+        this->_mesh = new Ebb::Mesh("");
         this->_mesh->load(file);
+        this->_shader = new Ebb::Shader();
         this->_shader->load(file);
+    }
+    virtual Node *construct(Node *parent) override {
+        return new MeshRenderer(parent);
     }
 private:
     Ebb::Mesh *_mesh;
-    getter(_mesh);
+    getter(_mesh)
 
     unsigned int VAO, VBO;
     unsigned int EBO;
