@@ -1,2 +1,0 @@
-#undef getter
-#undef setter
