@@ -1,7 +1,7 @@
 #include <ebb/window.hpp>
 #include <ebb/util/file.hpp>
 
-Ebb::Window::Window(int width, int height, const std::string& title = "Ebb Engine") : title(title) {
+Ebb::Window::Window(int width, int height, const std::string& title = "Ebb Engine") : _title(title) {
     Ebb::Window::setup();
     this->_win = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
     if (this->_win == nullptr) {
@@ -10,8 +10,8 @@ Ebb::Window::Window(int width, int height, const std::string& title = "Ebb Engin
     }
     glfwMakeContextCurrent(this->_win);
 
-    this->width  =  width;
-    this->height = height;
+    this->_width  =  width;
+    this->_height = height;
 }
 
 void Ebb::Window::update() {
@@ -45,15 +45,15 @@ void Ebb::Window::teardown() {
  * |width: i32| |height: i32| |title: nts/c-str|
 */
 void Ebb::Window::save(FILE *file) {
-    fwrite(&this->width, 1, sizeof(this->width), file);
-    fwrite(&this->height, 1, sizeof(this->height), file);
+    fwrite(&this->_width, 1, sizeof(this->_width), file);
+    fwrite(&this->_height, 1, sizeof(this->_height), file);
 
-    Ebb::Util::Files::writeNts(file, this->title);
+    Ebb::Util::Files::writeNts(file, this->_title);
 }
 
 void Ebb::Window::load(FILE *file) {
-    fread(&this->width, 1, sizeof(this->width), file);
-    fread(&this->height, 1, sizeof(this->height), file);
+    fread(&this->_width, 1, sizeof(this->_width), file);
+    fread(&this->_height, 1, sizeof(this->_height), file);
 
-    Ebb::Util::Files::readNts(file, this->title);
+    Ebb::Util::Files::readNts(file, this->_title);
 }

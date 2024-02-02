@@ -4,6 +4,7 @@
 #include <ebb/serializable.hpp>
 #include <ebb/node.hpp>
 #include <string>
+#include <stdio.h>
 
 namespace Ebb {
 class Window : public Ebb::Serializable {
@@ -18,12 +19,17 @@ public:
 
     void save(FILE *file) override;
     void load(FILE *file) override;
+
+    int  width() { return _width ; }
+    int height() { return _height; }
+
+    std::string title() { return _title; }
 private:
     GLFWwindow *_win;
     static bool initialized;
 
-    int width, height;
-    std::string title;
+    int _width, _height;
+    std::string _title;
 };
 
 class WindowManager : public Ebb::Node {
@@ -37,6 +43,12 @@ public:
         }
 
         this->Node::update(); // back up the inheritance tree :)
+    }
+
+    void print() {
+        printf("WindowManager{");
+        this->Node::print();
+        printf(", %d, %d, \"%s\"}", win->width(), win->height(), win->title().c_str());
     }
 private:
     Ebb::Window *win;
