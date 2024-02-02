@@ -14,8 +14,8 @@ void Ebb::Node::save(FILE *file) {
         return;
     }
     char type[] = "Node"; // root name of the class
-    std::shared_ptr<Ebb::Node> root = this->findRoot();
         // make sure the root node knows of this type
+    Ebb::Node *root = this->findRoot();
     root->addType<Ebb::Node>(std::string(type));
         // write the node type to the file
     fwrite(&type, 1, (sizeof(type) / sizeof(char)), file);
@@ -24,10 +24,12 @@ void Ebb::Node::save(FILE *file) {
     uint32_t nChildren = this->children.size();
     fwrite(&nChildren, 1, sizeof(uint32_t), file);
 
+    printf("%d children\n", nChildren);
         // write the children to the file
-    for (std::shared_ptr<Ebb::Node> child : this->children) {
+    for (Ebb::Node *child : this->children) {
         child->save(file);
     }
+    printf("okk\n");
 
     // no other data for base node class (there should be in inherited classes)
 }
@@ -37,32 +39,39 @@ void Ebb::Node::load(FILE *file) {
             // TODO: show error message
         return;
     }
-    std::shared_ptr<Ebb::Node> root = this->findRoot();
+    Ebb::Node *root = this->findRoot();
     uint32_t nChildren;  // get the number of children from the file
     fread(&nChildren, 1, sizeof(uint32_t), file);
 
     for (int i = 0; i < nChildren; i++) {
-        std::shared_ptr<Ebb::Node> child = root->loadNode(file);
-        child->parent = std::make_shared<Ebb::Node>(this);
+        Ebb::Node *child = root->loadNode(file);
+        child->parent = this;
         this->children.push_back(child);
     }
+
+    // other nodes can load data after this
 }
 
-std::shared_ptr<Ebb::Node> Ebb::Node::loadNode(FILE *file) {
+Ebb::Node *Ebb::Node::loadNode(FILE *file) {
     if (file == NULL) {
             // TODO: show error messages
-        return;
+        return nullptr;
     }
-    std::shared_ptr<Ebb::Node> root = this->findRoot();
+    Ebb::Node *root = this->findRoot();
 
     std::string type;
     char c;
     while ((c = fgetc(file)) != '\0') {
         if (c == EOF) {
                 // TODO: show error messages
-            return;
+            return nullptr;
         }
         type += c;
     }
-    std::shared_ptr<Ebb::Node> node = root->construct(type);
+    Ebb::Node *node = root->construct(type);
+    for (std::pair<std::string, std::function<Ebb::Node *()>> constr : this->constructors) {
+        node->addConstructor(std::get<0>(constr), std::get<1>(constr));
+    }
+    node->load(file);
+    return node;
 }

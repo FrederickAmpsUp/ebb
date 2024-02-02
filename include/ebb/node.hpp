@@ -1,8 +1,8 @@
 #pragma once
 
 #include <ebb/serializable.hpp>
+#include <stdio.h>
 #include <vector>
-#include <memory>
 #include <map>
 #include <functional>
 #include <string>
@@ -13,48 +13,75 @@ public:
     /**
      * Constructor. Assumes root node with no children.
     */
-    Node() : children(0), parent(nullptr) {}
+    Node() : parent(nullptr) {}
     /**
      * Constructor. Assumes root node with children.
     */
-    Node(std::vector<std::shared_ptr<Ebb::Node>> children) : children(children), parent(nullptr) {}
+    Node(std::vector<Ebb::Node *> children) : children(children), parent(nullptr) {
+        for (Ebb::Node *child : children) {
+            child->parent = this;
+    }
+    }
     /**
      * Constructor. Assumes branch node.
     */
-    Node(std::vector<std::shared_ptr<Ebb::Node>> children, std::shared_ptr<Ebb::Node> parent) : children(children), parent(parent) {}
+    Node(std::vector<Ebb::Node *> children, Ebb::Node *parent) : children(children), parent(parent) {
+        for (Ebb::Node *child : children) {
+            child->parent = this;
+        }
+
+        parent->addChild(this);
+    }
     /**
      * Constructor. Assumes leaf node.
     */
-    Node(std::shared_ptr<Ebb::Node> parent) : children(0), parent(parent) {}
+    Node(Ebb::Node *parent) : parent(parent) {
+        parent->addChild(this);
+    }
+
+    /**
+     * Add a child to this node.
+     * @param node The child to add
+     * @retval void
+    */
+    void addChild(Ebb::Node *node) {
+        node->parent = this;
+        this->children.push_back(node);
+    }
 
     /**
      * Serializable overrides
     */
     virtual void save(FILE *file) override;
     virtual void load(FILE *file) override;
-    std::shared_ptr<Ebb::Node> loadNode(FILE *file);
+
+    /**
+     * Load a node from a file
+     * @param file
+    */
+    Ebb::Node *loadNode(FILE *file);
 
     /**
      * Traverse the node tree to find the tree's root.
      * @retval The root node of the tree.
     */
-    std::shared_ptr<Ebb::Node> findRoot() {
+    Ebb::Node *findRoot() {
             // this is the root
-        if (this->parent == nullptr) return std::make_shared<Ebb::Node>(this);
+        if (this->parent == nullptr) return this;
             // parent will find it (recurse up the tree)
         return this->parent->findRoot();
     }
 
 template <typename T>
     void addType(std::string name) {
-        this->constructors[name] = []{ std::make_shared<T>() };
+        this->constructors[name] = std::function([]() -> Ebb::Node* { return new T(); });
             // make sure children have it too (recurse down the tree)
-        for (std::shared_ptr<Ebb::Node> child : this->children) {
+        for (Ebb::Node *child : this->children) {
             child->addType<T>(name);
         }
     }
 
-    std::shared_ptr<Ebb::Node> construct(std::string typeName) {
+    Ebb::Node *construct(std::string typeName) {
         if (this->constructors.find(typeName) == this->constructors.end()) {
             if (this->parent != nullptr) return this->parent->construct(typeName);
             // todo: show error message (node type not found)
@@ -65,10 +92,22 @@ template <typename T>
 
     }
 
-private:
-    std::vector<std::shared_ptr<Ebb::Node>> children;
-    std::shared_ptr<Ebb::Node> parent;
+    virtual void print() {
+        printf("Ebb::Node(");
+        for (Ebb::Node *child : this->children) {
+            child->print();
+            printf(", ");
+        }
+        printf(")");
+    }
 
-    std::map<std::string, std::function<std::shared_ptr<Ebb::Node>()>> constructors;
+    void addConstructor(std::string typeName, std::function<Ebb::Node *()> constr) {
+        this->constructors[typeName] = constr;
+    }
+private:
+    std::vector<Ebb::Node *> children;
+    Ebb::Node *parent;
+
+    std::map<std::string, std::function<Ebb::Node *()>> constructors;
 };
 };
