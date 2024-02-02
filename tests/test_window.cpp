@@ -8,5 +8,7 @@ int main(int argc, char **argv) {
         win->update();
     }
 
+    Ebb::Window::teardown();
+
     return 0;
 }

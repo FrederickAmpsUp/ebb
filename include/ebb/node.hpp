@@ -104,6 +104,15 @@ template <typename T>
     void addConstructor(std::string typeName, std::function<Ebb::Node *()> constr) {
         this->constructors[typeName] = constr;
     }
+
+    /**
+     * Setup the node
+    */
+    virtual void setup() {}
+    /**
+     * Run the node's loop (called every frame)
+    */
+    virtual void update() {}
 private:
     std::vector<Ebb::Node *> children;
     Ebb::Node *parent;
