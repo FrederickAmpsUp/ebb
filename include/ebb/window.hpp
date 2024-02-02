@@ -2,6 +2,7 @@
 
 #include <GLFW/glfw3.h>
 #include <ebb/serializable.hpp>
+#include <ebb/node.hpp>
 #include <string>
 
 namespace Ebb {
@@ -23,5 +24,21 @@ private:
 
     int width, height;
     std::string title;
+};
+
+class WindowManager : public Ebb::Node {
+public:
+    WindowManager(Ebb::Node *parent, Ebb::Window *win) : Node(parent), win(win) {}
+
+    void update() {
+        if (this->win != nullptr) {
+            if (!this->win->open()) this->findRoot()->active = false; // disable the entire nodetree, closing the program
+            this->win->update();
+        }
+
+        this->Node::update(); // back up the inheritance tree :)
+    }
+private:
+    Ebb::Window *win;
 };
 };

@@ -13,11 +13,14 @@ public:
     /**
      * Constructor. Assumes root node with no children.
     */
-    Node() : parent(nullptr) {}
+    Node() : parent(nullptr) {
+        active = true;
+    }
     /**
      * Constructor. Assumes root node with children.
     */
     Node(std::vector<Ebb::Node *> children) : children(children), parent(nullptr) {
+        active = true;
         for (Ebb::Node *child : children) {
             child->parent = this;
     }
@@ -26,6 +29,7 @@ public:
      * Constructor. Assumes branch node.
     */
     Node(std::vector<Ebb::Node *> children, Ebb::Node *parent) : children(children), parent(parent) {
+        active = true;
         for (Ebb::Node *child : children) {
             child->parent = this;
         }
@@ -36,6 +40,7 @@ public:
      * Constructor. Assumes leaf node.
     */
     Node(Ebb::Node *parent) : parent(parent) {
+        active = true;
         parent->addChild(this);
     }
 
@@ -106,17 +111,46 @@ template <typename T>
     }
 
     /**
-     * Setup the node
+     * Setup the node. This may be overridden, but at the end of the override, the line `this->Ebb::Node::setup();` must be present in order to update children.
     */
-    virtual void setup() {}
+    virtual void setup() {
+            // recurse down the tree.
+        for (Ebb::Node *child : this->children) {
+            child->setup();
+        }
+    }
     /**
-     * Run the node's loop (called every frame)
+     * Run the node's loop (called every frame). This may be overridden, but at the end of the override, the line `this->Ebb::Node::update();` must be present in order to update children.
     */
-    virtual void update() {}
+    virtual void update() {
+                    // recurse down the tree
+        for (Ebb::Node *child : this->children) {
+            child->update();
+        }
+    }
+
+    bool active;
 private:
     std::vector<Ebb::Node *> children;
     Ebb::Node *parent;
 
     std::map<std::string, std::function<Ebb::Node *()>> constructors;
+};
+
+class NodeTreeManager {
+public:
+    NodeTreeManager(Ebb::Node *tree) : tree(tree) {}
+
+    void run() {
+        if (this->tree == nullptr) return;
+
+        this->tree->setup();
+
+        for (; this->tree->active;) {
+            this->tree->update();
+        }
+    }
+private:
+    Ebb::Node *tree;
 };
 };

@@ -2,6 +2,7 @@
 #include <ebb/util/file.hpp>
 
 Ebb::Window::Window(int width, int height, const std::string& title = "Ebb Engine") : title(title) {
+    Ebb::Window::setup();
     this->_win = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
     if (this->_win == nullptr) {
         // TODO: show error message or smth
