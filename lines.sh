@@ -1,12 +1,11 @@
 # doesnt work smh
 #!/bin/bash
 
-#doesnt work smh
 include="./include/ebb/"
-source="./src/"
+source="./src/ ./tests/"
 
-head_data=$(find $include -name "*.h" -type f -exec wc -l {} +)
-source_data=$(find $source -name "*.c" -type f -exec wc -l {} +)
+head_data=$(find $include -name "*.hpp" -type f -exec wc -l {} +)
+source_data=$(find $source -name "*.cpp" -type f -exec wc -l {} +)
 
 head_max=$(echo "$head_data" | awk '$2 != "total" { print $1, $2 }' | sort -n -k1 | tail -n 1)
 head_min=$(echo "$head_data" | awk '$2 != "total" { print $1, $2 }' | sort -r -n -k1 | tail -n 1)
