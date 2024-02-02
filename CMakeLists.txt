@@ -33,6 +33,7 @@ foreach(test_source ${TEST_SOURCES})
 	set_target_properties(${test_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ../bin/)
 	target_link_libraries(${test_name} PRIVATE glm::glm)
 	target_link_libraries(${test_name} PRIVATE ebb)
+	target_link_libraries(${test_name} PRIVATE glfw)
 endforeach()
 
 include(FetchContent)
