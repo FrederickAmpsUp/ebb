@@ -35,6 +35,7 @@ private:
 class WindowManager : public Ebb::Node {
 public:
     WindowManager(Ebb::Node *parent, Ebb::Window *win) : Node(parent), win(win) {}
+    using Node::Node;
 
     void update() {
         if (this->win != nullptr) {
@@ -45,11 +46,23 @@ public:
         this->Node::update(); // back up the inheritance tree :)
     }
 
-    void print() {
+    void print() override {
         printf("WindowManager{");
         this->Node::print();
         printf(", %d, %d, \"%s\"}", win->width(), win->height(), win->title().c_str());
     }
+
+    void save(FILE *file) override {
+        this->Ebb::Node::save(file);
+        this->win->save(file);
+    }
+    void load(FILE *file) override {
+        this->Ebb::Node::load(file);
+        if (this->win == nullptr) this->win = new Ebb::Window(0,0,"");
+        this->win->load(file);
+        
+    }
+    char *typeName() override { return (char *)"WindowManager"; }
 private:
     Ebb::Window *win;
 };

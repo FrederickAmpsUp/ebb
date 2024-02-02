@@ -3,6 +3,7 @@
 
 Ebb::Window::Window(int width, int height, const std::string& title = "Ebb Engine") : _title(title) {
     Ebb::Window::setup();
+    if (width + height == 0) return;
     this->_win = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
     if (this->_win == nullptr) {
         // TODO: show error message or smth
@@ -56,4 +57,7 @@ void Ebb::Window::load(FILE *file) {
     fread(&this->_height, 1, sizeof(this->_height), file);
 
     Ebb::Util::Files::readNts(file, this->_title);
+
+    this->Ebb::Window::~Window();
+    new (this) Ebb::Window(this->_width, this->_height, this->_title);
 }

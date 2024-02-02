@@ -130,6 +130,7 @@ template <typename T>
     }
 
     bool active;
+    virtual char *typeName() { return (char *)"Node"; }
 private:
     std::vector<Ebb::Node *> children;
     Ebb::Node *parent;

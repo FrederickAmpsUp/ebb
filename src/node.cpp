@@ -1,5 +1,7 @@
 #include <ebb/node.hpp>
+#include <ebb/util/file.hpp>
 #include <stdint.h>
+#include <typeinfo>
 
 /**
  * Node memory layout:
@@ -13,12 +15,12 @@ void Ebb::Node::save(FILE *file) {
             // TODO: show error message
         return;
     }
-    char type[] = "Node"; // root name of the class
+    char *type = this->typeName(); // root name of the class
         // make sure the root node knows of this type
     Ebb::Node *root = this->findRoot();
     root->addType<Ebb::Node>(std::string(type));
         // write the node type to the file
-    fwrite(&type, 1, (sizeof(type) / sizeof(char)), file);
+    Ebb::Util::Files::writeNts(file, type);
 
         // write the number of children to the file
     uint32_t nChildren = this->children.size();
