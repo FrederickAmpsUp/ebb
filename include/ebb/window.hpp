@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+#include <GL/gl.h>
 #include <ebb/serializable.hpp>
 #include <ebb/node.hpp>
 #include <string>
@@ -24,6 +25,12 @@ public:
     int height() { return _height; }
 
     std::string title() { return _title; }
+
+    void clear() {
+        glfwMakeContextCurrent(this->_win);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
 private:
     GLFWwindow *_win;
     static bool initialized;

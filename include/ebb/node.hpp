@@ -6,6 +6,7 @@
 #include <map>
 #include <functional>
 #include <string>
+#include <type_traits>
 
 namespace Ebb {
 class Node : public Ebb::Serializable {
@@ -120,13 +121,25 @@ template <typename T>
         }
     }
     /**
-     * Run the node's loop (called every frame). This may be overridden, but at the end of the override, the line `this->Ebb::Node::update();` must be present in order to update children.
+     * Run the node's loop (called every frame, after node manager updates). This may be overridden, but at the end of the override, the line `this->Ebb::Node::update();` must be present in order to update children.
     */
     virtual void update() {
                     // recurse down the tree
         for (Ebb::Node *child : this->children) {
             child->update();
         }
+    }
+
+template <typename T, typename = std::enable_if_t<std::is_base_of_v<Ebb::Node, T>>>
+    std::vector<T *> findAll() {
+        std::vector<T *> result;
+        for (Ebb::Node *child : this->children) {
+            if (dynamic_cast<T *>(child) != nullptr) result.push_back(dynamic_cast<T *>(child));
+            std::vector<T *> chRes = child->findAll<T>();
+            result.insert(result.end(), chRes.begin(), chRes.end());
+        }
+
+        return result;
     }
 
     bool active;
@@ -138,20 +151,40 @@ private:
     std::map<std::string, std::function<Ebb::Node *()>> constructors;
 };
 
+/**
+ * Abstract class for things that do stuff to nodes. An example is Ebb::Renderer.
+*/
+class NodeManager {
+public:
+    NodeManager() {};
+    virtual void  setup() = 0;
+    virtual void update() = 0;
+};
+
 class NodeTreeManager {
 public:
-    NodeTreeManager(Ebb::Node *tree) : tree(tree) {}
+    NodeTreeManager(Ebb::Node *tree) : tree(tree), managers({}) {}
+    NodeTreeManager(Ebb::Node *tree, const std::vector<Ebb::NodeManager *>& managers) : tree(tree), managers(managers) {}
+
+    void addManager(Ebb::NodeManager *manager) { this->managers.push_back(manager); }
 
     void run() {
         if (this->tree == nullptr) return;
 
+        for (Ebb::NodeManager *manager : this->managers) {
+            manager->setup();
+        }
         this->tree->setup();
 
         for (; this->tree->active;) {
+            for (Ebb::NodeManager *manager : this->managers) {
+                manager->update();
+            }
             this->tree->update();
         }
     }
 private:
     Ebb::Node *tree;
+    std::vector<Ebb::NodeManager *> managers;
 };
 };

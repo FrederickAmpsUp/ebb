@@ -34,6 +34,7 @@ foreach(test_source ${TEST_SOURCES})
 	target_link_libraries(${test_name} PRIVATE glm::glm)
 	target_link_libraries(${test_name} PRIVATE ebb)
 	target_link_libraries(${test_name} PRIVATE glfw)
+	target_link_libraries(${test_name} PRIVATE GL)
 endforeach()
 
 include(FetchContent)
