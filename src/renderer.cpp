@@ -11,5 +11,7 @@ void Ebb::Renderer::update() {
         renderable->draw();
     }
 
+    if (!this->win->open()) this->tree->active = false;
+
     this->win->update();
 }

@@ -1,7 +1,7 @@
 #pragma once
 
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <GL/gl.h>
 #include <ebb/serializable.hpp>
 #include <ebb/node.hpp>
 #include <string>

@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.11)
 project(Ebb)
 
+include(FetchContent)
+
+FetchContent_Declare(
+	glm
+	GIT_REPOSITORY	https://github.com/g-truc/glm.git
+)
+
+FetchContent_MakeAvailable(glm)
+
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include/")
@@ -35,13 +44,5 @@ foreach(test_source ${TEST_SOURCES})
 	target_link_libraries(${test_name} PRIVATE ebb)
 	target_link_libraries(${test_name} PRIVATE glfw)
 	target_link_libraries(${test_name} PRIVATE GL)
+	target_link_libraries(${test_name} PRIVATE glad)
 endforeach()
-
-include(FetchContent)
-
-FetchContent_Declare(
-	glm
-	GIT_REPOSITORY	https://github.com/g-truc/glm.git # just use latest version
-)
-
-FetchContent_MakeAvailable(glm)

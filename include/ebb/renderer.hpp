@@ -7,6 +7,7 @@
 namespace Ebb {
 class Renderable : public Ebb::Node {
 public:
+    using Ebb::Node::Node; // inherited constructors
     virtual void draw() = 0;
 };
 
