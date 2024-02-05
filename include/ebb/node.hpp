@@ -144,11 +144,13 @@ template <typename T, typename = std::enable_if_t<std::is_base_of_v<Ebb::Node, T
 
     bool active;
     virtual char *typeName() { return (char *)"Node"; }
+
+    Ebb::Node *getParent() { return this->parent; }
 private:
+    std::map<std::string, std::function<Ebb::Node *()>> constructors;
+protected:
     std::vector<Ebb::Node *> children;
     Ebb::Node *parent;
-
-    std::map<std::string, std::function<Ebb::Node *()>> constructors;
 };
 
 /**

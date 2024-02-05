@@ -21,11 +21,11 @@ void main()
     vec4 worldPosition = model * vec4(aPosition, 1.0);
     vec4 viewPosition = view * worldPosition;
     gl_Position = projection * viewPosition;
-    gl_Position = vec4(aPosition, 1.0);
 
     // Pass position and normal to the fragment shader
     FragPos = worldPosition.xyz;
     Normal = mat3(transpose(inverse(model))) * aNormal; // Transform normal to world space
+    Normal = aNormal;
 }
 )";
 
@@ -34,11 +34,12 @@ static char *fragmentSource = (char *)R"(
 #version 330 core
 
 in vec3 FragPos;
+in vec3 Normal;
 out vec4 Color;
 
 void main()
 {
-    Color = vec4(1.0, 0.0, 1.0, 1.0); // default, doesn't need to be fancy
+    Color = vec4(Normal, 1.0); // default, doesn't need to be fancy
 }
 )";
 
@@ -86,4 +87,38 @@ Ebb::ObjectShader::ObjectShader(const char *vert, const char *frag) {
 
     glDeleteShader(this->vert);
     glDeleteShader(this->frag);
+}
+
+// uniform functions
+void Ebb::ObjectShader::uniform(char *name, int value) {
+    int loc = glGetUniformLocation(this->program, name);
+    glUniform1i(loc, value);
+}
+void Ebb::ObjectShader::uniform(char *name, float value) {
+    int loc = glGetUniformLocation(this->program, name);
+    glUniform1f(loc, value);
+}
+void Ebb::ObjectShader::uniform(char *name, Ebb::Math::vec2 value) {
+    int loc = glGetUniformLocation(this->program, name);
+    glUniform2f(loc, value.x, value.y);
+}
+void Ebb::ObjectShader::uniform(char *name, Ebb::Math::vec3 value) {
+    int loc = glGetUniformLocation(this->program, name);
+    glUniform3f(loc, value.x, value.y, value.z);
+}
+void Ebb::ObjectShader::uniform(char *name, Ebb::Math::vec4 value) {
+    int loc = glGetUniformLocation(this->program, name);
+    glUniform4f(loc, value.x, value.y, value.z, value.w);
+}
+void Ebb::ObjectShader::uniform(char *name, Ebb::Math::mat2x2 value) {
+    int loc = glGetUniformLocation(this->program, name);
+    glUniformMatrix2fv(loc, 1, GL_FALSE, &(value[0][0]));
+}
+void Ebb::ObjectShader::uniform(char *name, Ebb::Math::mat3x3 value) {
+    int loc = glGetUniformLocation(this->program, name);
+    glUniformMatrix3fv(loc, 1, GL_FALSE, &(value[0][0]));
+}
+void Ebb::ObjectShader::uniform(char *name, Ebb::Math::mat4x4 value) {
+    int loc = glGetUniformLocation(this->program, name);
+    glUniformMatrix4fv(loc, 1, GL_FALSE, &(value[0][0]));
 }
