@@ -13,8 +13,7 @@ int main(int argc, char **argv) {
     manager.addManager(renderer);
 
     Ebb::MeshRenderer *suzanne = new Ebb::MeshRenderer(root, Ebb::Mesh::loadOBJ("models/monke.obj"));
-
-
+    
     manager.run();
 
     Ebb::Window::teardown();

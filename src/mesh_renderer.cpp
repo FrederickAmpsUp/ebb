@@ -1,6 +1,6 @@
 #include <ebb/mesh/renderer.hpp>
 
-Ebb::MeshRenderer::MeshRenderer(Ebb::Node *parent, Ebb::Mesh *mesh) : Ebb::Renderable(parent), mesh(mesh) {
+Ebb::MeshRenderer::MeshRenderer(Ebb::Node *parent, Ebb::Mesh *mesh, Ebb::ObjectShader *shader) : Ebb::Renderable(parent), mesh(mesh) {
     glGenVertexArrays(1, &this->VAO);
     glBindVertexArray(this->VAO);
 
@@ -18,10 +18,16 @@ Ebb::MeshRenderer::MeshRenderer(Ebb::Node *parent, Ebb::Mesh *mesh) : Ebb::Rende
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    if (shader) this->shader = shader;
+    else this->shader = new Ebb::ObjectShader();
 }
-Ebb::MeshRenderer::MeshRenderer(Ebb::Mesh *mesh) : Ebb::MeshRenderer(nullptr, mesh) {}
+Ebb::MeshRenderer::MeshRenderer(Ebb::Node *parent, Ebb::Mesh *mesh) : Ebb::MeshRenderer(parent, mesh, new Ebb::ObjectShader()) {}
+Ebb::MeshRenderer::MeshRenderer(Ebb::Mesh *mesh, Ebb::ObjectShader *shader) : Ebb::MeshRenderer(nullptr, mesh, shader) {}
+Ebb::MeshRenderer::MeshRenderer(Ebb::Mesh *mesh) : Ebb::MeshRenderer(nullptr, mesh, new Ebb::ObjectShader()) {}
 
 void Ebb::MeshRenderer::draw() {
     glBindVertexArray(this->VAO);
-    glDrawArrays(GL_TRIANGLES, 0, this->mesh->indices.size());
+    this->shader->use();
+    glDrawElements(GL_TRIANGLES, this->mesh->indices.size(), GL_UNSIGNED_INT, 0);
 }
