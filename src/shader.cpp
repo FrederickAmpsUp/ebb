@@ -7,9 +7,11 @@ static char *vertexSource = (char *)R"(
 
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec3 aNormal;
+layout(location = 2) in vec2 aTexCoord;
 
 out vec3 FragPos; // For passing position to the fragment shader
-out vec3 Normal;  // For passing normals to the fragment shader
+flat out vec3 Normal;  // For passing normals to the fragment shader
+out vec2 TexUV;   // For passing UV to the fragment shader
 
 uniform mat4 model;      // Object's model matrix
 uniform mat4 view;       // Camera's view matrix
@@ -24,8 +26,9 @@ void main()
 
     // Pass position and normal to the fragment shader
     FragPos = worldPosition.xyz;
-    Normal = mat3(transpose(inverse(model))) * aNormal; // Transform normal to world space
-    Normal = aNormal;
+    Normal = normalize(transpose(inverse(mat3(model))) * aNormal); // Transform normal to world space
+
+    TexUV = aTexCoord;
 }
 )";
 
@@ -34,12 +37,13 @@ static char *fragmentSource = (char *)R"(
 #version 330 core
 
 in vec3 FragPos;
-in vec3 Normal;
+flat in vec3 Normal;
+in vec2 TexUV;
 out vec4 Color;
 
 void main()
 {
-    Color = vec4(Normal, 1.0); // default, doesn't need to be fancy
+    Color = vec4(Normal, 1.0);
 }
 )";
 

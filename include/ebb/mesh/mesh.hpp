@@ -7,6 +7,7 @@
 #include <array>
 #include <stdint.h>
 #include <string.h>
+#include <cmath>
 
 namespace Ebb {
 class Mesh {
@@ -22,6 +23,9 @@ public:
             return mesh;
         }
 
+        std::vector<std::array<float, 3>> normals;
+        std::vector<std::array<float, 2>> texcoords;
+
         char line[256];
         while (fgets(line, sizeof(line), file)) {
             char type[3];
@@ -34,11 +38,11 @@ public:
             } else if (strcmp(type, "vt") == 0) {
                 float u, v;
                 sscanf(line + 3, "%f %f", &u, &v);
-                mesh->texcoords.push_back({u, v});
+                texcoords.push_back({u, v});
             } else if (strcmp(type, "vn") == 0) {
                 float nx, ny, nz;
                 sscanf(line + 3, "%f %f %f", &nx, &ny, &nz);
-                mesh->normals.push_back({nx, ny, nz});
+                normals.push_back({nx, ny, nz});
             } else if (strcmp(type, "f") == 0) {
                 uint32_t v1, v2, v3;
                 uint32_t t1, t2, t3;
@@ -47,6 +51,22 @@ public:
                 mesh->indices.push_back(v1 - 1); // OBJ indices are 1-based
                 mesh->indices.push_back(v2 - 1);
                 mesh->indices.push_back(v3 - 1);
+
+                mesh->normals.reserve(v1+1);
+                mesh->normals.reserve(v2+1);
+                mesh->normals.reserve(v3+1);
+
+                mesh->texcoords.reserve(v1+1);
+                mesh->texcoords.reserve(v2+1);
+                mesh->texcoords.reserve(v3+1);
+
+                mesh->normals[v1-1] = normals[n1-1];
+                mesh->normals[v2-1] = normals[n2-1];
+                mesh->normals[v3-1] = normals[n3-1];
+
+                mesh->texcoords[v1-1] = texcoords[t1-1];
+                mesh->texcoords[v2-1] = texcoords[t2-1];
+                mesh->texcoords[v3-1] = texcoords[t3-1];
             }
         }
         fclose(file);

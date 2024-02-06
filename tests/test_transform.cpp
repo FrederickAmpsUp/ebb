@@ -30,11 +30,11 @@ int main(int argc, char **argv) {
     Ebb::Math::mat4x4 cam = Ebb::Math::perspective(45.0f, 800.0f/600.0f, 1000.0f, 0.01f);
 
 
-    Ebb::Transform *suzanne = new Ebb::Transform(root);
-    Rotate *r = new Rotate(suzanne);
-    r->object = suzanne;
-    suzanne->translate(Ebb::Math::vec3(0.0f, 0.0f, -2.0f));
-    Ebb::MeshRenderer *suzanneRender = new Ebb::MeshRenderer(suzanne, Ebb::Mesh::loadOBJ("models/monke.obj"));
+    Ebb::Transform *mesh = new Ebb::Transform(root);
+    Rotate *r = new Rotate(mesh);
+    r->object = mesh;
+    mesh->translate(Ebb::Math::vec3(0.0f, 0.0f, -2.0f));
+    Ebb::MeshRenderer *meshRender = new Ebb::MeshRenderer(mesh, Ebb::Mesh::loadOBJ("models/monke.obj"));
     
     manager.run();
 

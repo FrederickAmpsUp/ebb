@@ -32,13 +32,13 @@ Ebb::MeshRenderer::MeshRenderer(Ebb::Node *parent, Ebb::Mesh *mesh, Ebb::ObjectS
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->mesh->indices.size()*sizeof(uint32_t), &this->mesh->indices[0], GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (3 + 3 + 2) * sizeof(float), (void *)0); // position [TODO: normals, texcoords]
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (3 + 3 + 2) * sizeof(float), (void *)0); // position
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, (3 + 3 + 2) * sizeof(float), (void *)(3 * sizeof(float))); // position [TODO: normals, texcoords]
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, (3 + 3 + 2) * sizeof(float), (void *)(3 * sizeof(float))); // normal
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, (3 + 3 + 2) * sizeof(float), (void *)(6 * sizeof(float))); // position [TODO: normals, texcoords]
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, (3 + 3 + 2) * sizeof(float), (void *)(6 * sizeof(float))); // texcoord
     glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -65,6 +65,9 @@ void Ebb::MeshRenderer::draw() {
     glBindVertexArray(this->VAO);
     glEnable(GL_DEPTH_TEST); // enable z-buffering
     glDepthFunc(GL_LESS);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     
     this->shader->use();
     this->shader->uniform((char *)"model", object);
