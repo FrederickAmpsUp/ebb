@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <ebb/math.hpp>
 
+/**
+ * Showcase movement over time. TODO: deltaTime and other timing stuff
+*/
 class Rotate : public Ebb::Node {
 public:
     using Ebb::Node::Node;
@@ -26,10 +29,7 @@ int main(int argc, char **argv) {
     Ebb::NodeTreeManager manager(root);
     Ebb::Renderer *renderer = new Ebb::Renderer(root, new Ebb::Window(800,600, "Test window"));
     manager.addManager(renderer);
-
-    Ebb::Math::mat4x4 cam = Ebb::Math::perspective(45.0f, 800.0f/600.0f, 1000.0f, 0.01f);
-
-
+    
     Ebb::Transform *mesh = new Ebb::Transform(root);
     Rotate *r = new Rotate(mesh);
     r->object = mesh;
@@ -39,6 +39,5 @@ int main(int argc, char **argv) {
     manager.run();
 
     Ebb::Window::teardown();
-
     return 0;
 }

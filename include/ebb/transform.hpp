@@ -13,8 +13,10 @@ public:
     Ebb::Math::mat4x4 totalTransform();
     Ebb::Math::mat4x4 matrix() { return this->objectMatrix; }
 
-    void translate(Ebb::Math::vec3 delta) { this->objectMatrix = Ebb::Math::translate(this->objectMatrix, delta); }
+    void translate(Ebb::Math::vec3 delta) { this->objectMatrix = Ebb::Math::translate(this->objectMatrix, -delta); }
+    void rotateX(float delta) { this->objectMatrix = Ebb::Math::rotate(this->objectMatrix, delta, Ebb::Math::vec3(1.0, 0.0, 0.0)); }
     void rotateY(float delta) { this->objectMatrix = Ebb::Math::rotate(this->objectMatrix, delta, Ebb::Math::vec3(0.0, 1.0, 0.0)); }
+    void rotateZ(float delta) { this->objectMatrix = Ebb::Math::rotate(this->objectMatrix, delta, Ebb::Math::vec3(0.0, 0.0, 1.0)); }
 private:
     Ebb::Math::mat4x4 objectMatrix = Ebb::Math::mat4x4(1.0);
 };

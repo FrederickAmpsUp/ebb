@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <ebb/math.hpp>
+#include <ebb/texture.hpp>
 
 namespace Ebb {
 class ObjectShader {

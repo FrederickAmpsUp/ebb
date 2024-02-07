@@ -2,13 +2,14 @@
 
 #include <ebb/node.hpp>
 #include <ebb/window.hpp>
+#include <ebb/math.hpp>
 #include <vector>
 
 namespace Ebb {
 class Renderable : public Ebb::Node {
 public:
     using Ebb::Node::Node; // inherited constructors
-    virtual void draw() = 0;
+    virtual void draw(Ebb::Math::mat4x4 view=Ebb::Math::mat4x4(1.0), Ebb::Math::mat4x4 proj=Ebb::Math::mat4x4(1.0)) = 0;
 };
 
 class Renderer : public Ebb::NodeManager {

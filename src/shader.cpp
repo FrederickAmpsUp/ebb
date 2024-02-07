@@ -10,7 +10,7 @@ layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoord;
 
 out vec3 FragPos; // For passing position to the fragment shader
-flat out vec3 Normal;  // For passing normals to the fragment shader
+out vec3 Normal;  // For passing normals to the fragment shader
 out vec2 TexUV;   // For passing UV to the fragment shader
 
 uniform mat4 model;      // Object's model matrix
@@ -37,7 +37,7 @@ static char *fragmentSource = (char *)R"(
 #version 330 core
 
 in vec3 FragPos;
-flat in vec3 Normal;
+in vec3 Normal;
 in vec2 TexUV;
 out vec4 Color;
 

@@ -52,21 +52,21 @@ Ebb::MeshRenderer::MeshRenderer(Ebb::Node *parent, Ebb::Mesh *mesh) : Ebb::MeshR
 Ebb::MeshRenderer::MeshRenderer(Ebb::Mesh *mesh, Ebb::ObjectShader *shader) : Ebb::MeshRenderer(nullptr, mesh, shader) {}
 Ebb::MeshRenderer::MeshRenderer(Ebb::Mesh *mesh) : Ebb::MeshRenderer(nullptr, mesh, new Ebb::ObjectShader()) {}
 
-void Ebb::MeshRenderer::draw() {
+void Ebb::MeshRenderer::draw(Ebb::Math::mat4x4 view, Ebb::Math::mat4x4 proj) {
     Ebb::Math::mat4x4 object = Ebb::Math::mat4x4(1.0);
-    Ebb::Math::mat4x4 view = Ebb::Math::mat4x4(1.0);
-    Ebb::Math::mat4x4 proj = Ebb::Math::perspective(45.0f, 4.0f/3.0f, 0.1f, 1000.0f);
     if (dynamic_cast<Ebb::Transform *>(this->parent)) {
         object = dynamic_cast<Ebb::Transform *>(this->parent)->totalTransform();
+    } else {
+        std::vector<Ebb::Transform *> transforms = this->parent->findAll<Ebb::Transform>();
+        if (transforms.size() > 0) object = transforms[0]->totalTransform();
     }
-    std::vector<Ebb::Transform *> transforms = this->parent->findAll<Ebb::Transform>();
-    if (transforms.size() > 0) object = transforms[0]->totalTransform();
 
     glBindVertexArray(this->VAO);
+
     glEnable(GL_DEPTH_TEST); // enable z-buffering
     glDepthFunc(GL_LESS);
 
-    glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE); // backface culling
     glCullFace(GL_BACK);
     
     this->shader->use();

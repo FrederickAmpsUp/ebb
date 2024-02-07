@@ -27,9 +27,14 @@ public:
     std::string title() { return _title; }
 
     void clear() {
-        glfwMakeContextCurrent(this->_win);
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        this->bind();
+        glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    void bind() {
+        glfwMakeContextCurrent(this->_win);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 private:
     GLFWwindow *_win;
@@ -70,6 +75,8 @@ public:
         
     }
     char *typeName() override { return (char *)"WindowManager"; }
+
+    Ebb::Window *window() { return this->win; }
 private:
     Ebb::Window *win;
 };

@@ -179,10 +179,11 @@ public:
         this->tree->setup();
 
         for (; this->tree->active;) {
+            this->tree->update();
+            
             for (Ebb::NodeManager *manager : this->managers) {
                 manager->update();
             }
-            this->tree->update();
         }
     }
 private:
