@@ -126,3 +126,10 @@ void Ebb::ObjectShader::uniform(char *name, Ebb::Math::mat4x4 value) {
     int loc = glGetUniformLocation(this->program, name);
     glUniformMatrix4fv(loc, 1, GL_FALSE, &(value[0][0]));
 }
+
+void Ebb::ObjectShader::save(FILE *file) {
+    // todo
+}
+void Ebb::ObjectShader::load(FILE *file) {
+    // also todo
+}

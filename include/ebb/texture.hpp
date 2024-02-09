@@ -19,6 +19,19 @@ public:
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
+
+    int width() {
+        int w;
+        glBindTexture(GL_TEXTURE_2D, this->TEX);
+        glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WIDTH, &w);
+        return w;
+    }
+    int height() {
+        int h;
+        glBindTexture(GL_TEXTURE_2D, this->TEX);
+        glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_HEIGHT, &h);
+        return h;
+    }
 private:
     unsigned int FBO, TEX, DEP;
 };

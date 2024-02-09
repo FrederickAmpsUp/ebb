@@ -47,8 +47,7 @@ void Ebb::Node::load(FILE *file) {
 
     for (int i = 0; i < nChildren; i++) {
         Ebb::Node *child = root->loadNode(file);
-        child->parent = this;
-        this->children.push_back(child);
+        this->addChild(child);
     }
 
     // other nodes can load data after this

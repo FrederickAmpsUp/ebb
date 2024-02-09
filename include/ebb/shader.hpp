@@ -3,9 +3,10 @@
 #include <glad/glad.h>
 #include <ebb/math.hpp>
 #include <ebb/texture.hpp>
+#include <ebb/serializable.hpp>
 
 namespace Ebb {
-class ObjectShader {
+class ObjectShader : public Ebb::Serializable {
 public:
     ObjectShader();
     ObjectShader(const char *frag);
@@ -14,6 +15,9 @@ public:
     void use() {
         glUseProgram(this->program);
     }
+
+    void save(FILE *file) override;
+    void load(FILE *file) override;
 
     void uniform(char *name, int value);
     void uniform(char *name, float value);

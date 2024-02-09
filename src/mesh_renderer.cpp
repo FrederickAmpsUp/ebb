@@ -54,10 +54,10 @@ Ebb::MeshRenderer::MeshRenderer(Ebb::Mesh *mesh) : Ebb::MeshRenderer(nullptr, me
 
 void Ebb::MeshRenderer::draw(Ebb::Math::mat4x4 view, Ebb::Math::mat4x4 proj) {
     Ebb::Math::mat4x4 object = Ebb::Math::mat4x4(1.0);
-    if (dynamic_cast<Ebb::Transform *>(this->parent)) {
-        object = dynamic_cast<Ebb::Transform *>(this->parent)->totalTransform();
+    if (dynamic_cast<Ebb::Transform *>(this->_parent)) {
+        object = dynamic_cast<Ebb::Transform *>(this->_parent)->totalTransform();
     } else {
-        std::vector<Ebb::Transform *> transforms = this->parent->findAll<Ebb::Transform>();
+        std::vector<Ebb::Transform *> transforms = this->_parent->findAll<Ebb::Transform>();
         if (transforms.size() > 0) object = transforms[0]->totalTransform();
     }
 

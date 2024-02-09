@@ -7,6 +7,7 @@
 #include <functional>
 #include <string>
 #include <type_traits>
+#include <ebb/util/class.hpp>
 
 namespace Ebb {
 class Node : public Ebb::Serializable {
@@ -14,25 +15,25 @@ public:
     /**
      * Constructor. Assumes root node with no children.
     */
-    Node() : parent(nullptr) {
+    Node() : _parent(nullptr) {
         active = true;
     }
     /**
      * Constructor. Assumes root node with children.
     */
-    Node(std::vector<Ebb::Node *> children) : children(children), parent(nullptr) {
+    Node(std::vector<Ebb::Node *> children) : children(children), _parent(nullptr) {
         active = true;
         for (Ebb::Node *child : children) {
-            child->parent = this;
+            child->_parent = this;
     }
     }
     /**
      * Constructor. Assumes branch node.
     */
-    Node(std::vector<Ebb::Node *> children, Ebb::Node *parent) : children(children), parent(parent) {
+    Node(std::vector<Ebb::Node *> children, Ebb::Node *parent) : children(children), _parent(parent) {
         active = true;
         for (Ebb::Node *child : children) {
-            child->parent = this;
+            child->_parent = this;
         }
 
         parent->addChild(this);
@@ -40,7 +41,7 @@ public:
     /**
      * Constructor. Assumes leaf node.
     */
-    Node(Ebb::Node *parent) : parent(parent) {
+    Node(Ebb::Node *parent) : _parent(parent) {
         active = true;
         parent->addChild(this);
     }
@@ -51,7 +52,7 @@ public:
      * @retval void
     */
     void addChild(Ebb::Node *node) {
-        node->parent = this;
+        node->_parent = this;
         this->children.push_back(node);
     }
 
@@ -73,9 +74,9 @@ public:
     */
     Ebb::Node *findRoot() {
             // this is the root
-        if (this->parent == nullptr) return this;
+        if (this->_parent == nullptr) return this;
             // parent will find it (recurse up the tree)
-        return this->parent->findRoot();
+        return this->_parent->findRoot();
     }
 
 template <typename T>
@@ -89,7 +90,7 @@ template <typename T>
 
     Ebb::Node *construct(std::string typeName) {
         if (this->constructors.find(typeName) == this->constructors.end()) {
-            if (this->parent != nullptr) return this->parent->construct(typeName);
+            if (this->_parent != nullptr) return this->_parent->construct(typeName);
             // todo: show error message (node type not found)
             return nullptr;
         } else {
@@ -144,13 +145,11 @@ template <typename T, typename = std::enable_if_t<std::is_base_of_v<Ebb::Node, T
 
     bool active;
     virtual char *typeName() { return (char *)"Node"; }
-
-    Ebb::Node *getParent() { return this->parent; }
 private:
     std::map<std::string, std::function<Ebb::Node *()>> constructors;
 protected:
     std::vector<Ebb::Node *> children;
-    Ebb::Node *parent;
+    gettableProt(Ebb::Node *, parent)
 };
 
 /**
@@ -180,7 +179,7 @@ public:
 
         for (; this->tree->active;) {
             this->tree->update();
-            
+
             for (Ebb::NodeManager *manager : this->managers) {
                 manager->update();
             }
