@@ -1,0 +1,19 @@
+[package]
+name = "ebb"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+log = "0.4"
+env_logger = "0.10"
+console_log = "1.0"
+console_error_panic_hook = "0.1.6"
+winit = { version = "0.29", features = ["rwh_05"] }
+web-sys = "0"
+wgpu = "22.0"
+
+# this is neccesary to prevent tests being run in a seperate thread
+[[test]]
+name = "test_window_01"
+path = "tests/test_window_01.rs"
+harness = false
