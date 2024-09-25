@@ -1,9 +1,10 @@
 use super::window;
 use wgpu;
+use std::rc::Rc;
 
 #[allow(dead_code, reason = "annoying warnings")]
 pub struct Instance<'a> {
-    window: &'a window::Window<'a>,
+    window: &'a mut window::Window<'a>,
     instance: wgpu::Instance,
     surface: wgpu::Surface<'a>,
     device: wgpu::Device,
@@ -11,7 +12,7 @@ pub struct Instance<'a> {
 }
 
 impl<'a> Instance<'a> {
-    pub async fn new(window: &'a window::Window<'_>) -> Self {
+    pub async fn new(window: &'a mut window::Window<'a>) -> Self {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::all(),
             ..Default::default()
@@ -41,7 +42,7 @@ impl<'a> Instance<'a> {
         ).await.expect("Ebb: Failed to get device handle!");
 
         Self {
-            window: &window,
+            window,
             instance,
             surface,
             device,
@@ -53,7 +54,11 @@ impl<'a> Instance<'a> {
         &self.queue
     }
 
-    pub fn window(&self) -> &mut window::Window<'a> {
-        self.window
+    pub fn window(&self) -> &window::Window<'a> {
+        &self.window
+    }
+
+    pub fn window_mut(&mut self) -> &mut window::Window<'a> {
+        &mut self.window
     }
 }
