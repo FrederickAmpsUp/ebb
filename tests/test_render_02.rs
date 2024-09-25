@@ -13,7 +13,7 @@ async fn main() {
         let name = String::from("Ebb Test Window");
         let mut window = ebb::window::new((1920, 1080), &name, false);
 
-        winit_window = window.raw_window();
+        winit_window = window.raw_window().clone();
 
         #[allow(unused_assignments)]
         let mut size = winit_window.inner_size();

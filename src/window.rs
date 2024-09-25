@@ -127,8 +127,8 @@ impl<'a> Window<'a> {
         self.resize_fn = Box::new(cbk);
     }
 
-    pub fn raw_window(&self) -> Rc<WinitWindow> {
-        self.win.clone()
+    pub fn raw_window(&self) -> &Rc<WinitWindow> {
+        &self.win
     }
 }
 
