@@ -11,12 +11,12 @@ async fn main() {
     let winit_window;
     {
         let name = String::from("Ebb Test Window");
-        let mut window = ebb::window::new((800, 600), &name, false);
+        let mut window = ebb::window::new((1920, 1080), &name, false);
 
         winit_window = window.raw_window();
 
+        #[allow(unused_assignments)]
         let mut size = winit_window.inner_size();
-        info!("size: {:?}", size);
 
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::all(),
@@ -75,40 +75,39 @@ async fn main() {
                 let device = Rc::clone(&device);
                 
                 move || {
-                let output = surface.get_current_texture().unwrap();
+                    let output = surface.get_current_texture().unwrap();
 
-                let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
+                    let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
 
-                let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                    label: Some("Render Encoder"),
-                });
-
-                {
-                    let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                        label: Some("Render Pass"),
-                        color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                            view: &view,
-                            resolve_target: None,
-                            ops: wgpu::Operations {
-                                load: wgpu::LoadOp::Clear(wgpu::Color {
-                                    r: 0.3,
-                                    g: 0.2,
-                                    b: 0.1,
-                                    a: 1.0,
-                                }),
-                                store: wgpu::StoreOp::Store,
-                            },
-                        })],
-                        depth_stencil_attachment: None,
-                        occlusion_query_set: None,
-                        timestamp_writes: None,
+                    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                        label: Some("Render Encoder"),
                     });
-                }
-            
-                // submit will accept anything that implements IntoIter
-                queue.submit(std::iter::once(encoder.finish()));
-                output.present();
-            
+
+                    {
+                        let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                            label: Some("Render Pass"),
+                            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                                view: &view,
+                                resolve_target: None,
+                                ops: wgpu::Operations {
+                                    load: wgpu::LoadOp::Clear(wgpu::Color {
+                                        r: 0.3,
+                                        g: 0.2,
+                                        b: 0.1,
+                                        a: 1.0,
+                                    }),
+                                    store: wgpu::StoreOp::Store,
+                                },
+                            })],
+                            depth_stencil_attachment: None,
+                            occlusion_query_set: None,
+                            timestamp_writes: None,
+                        });
+                    }
+                
+                    // submit will accept anything that implements IntoIter
+                    queue.submit(std::iter::once(encoder.finish()));
+                    output.present();
             }});
 
             window.on_resize({
