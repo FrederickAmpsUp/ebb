@@ -1,6 +1,6 @@
 use wgpu;
 use winit::dpi::PhysicalSize;
-use std::sync::Arc;
+use std::{cmp::min, sync::Arc};
 
 #[allow(dead_code, reason = "annoying warnings")]
 pub struct Instance<'a> {
@@ -10,6 +10,7 @@ pub struct Instance<'a> {
     queue: wgpu::Queue,
 
     size: winit::dpi::PhysicalSize<u32>,
+
     config: wgpu::SurfaceConfiguration,
 
     window: Arc<winit::window::Window>,
@@ -69,7 +70,22 @@ impl<'a> Instance<'a> {
     }
 
     pub fn resize(&mut self, new_size: &PhysicalSize<u32>) {
-        if new_size.width > 0 && new_size.height > 0 {
+        let mut new_size = *new_size;
+
+        let max_extent = self.device.limits().max_texture_dimension_2d;
+
+        if new_size.width > max_extent {
+            new_size.width = max_extent;
+            let _ = self.window.request_inner_size(new_size);
+            return;
+        }
+        if new_size.height > max_extent {
+            new_size.height = max_extent;
+            let _ = self.window.request_inner_size(new_size);
+            return;
+        }
+
+        if new_size.width > 0 && new_size.height > 0 && new_size.width < max_extent && new_size.height < max_extent {
             self.config.width = new_size.width;
             self.config.height = new_size.height;
             self.surface.configure(&self.device, &self.config);
