@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use winit::{
     event_loop::EventLoop,
     window::WindowBuilder,
@@ -9,10 +11,8 @@ use winit::{
 
 use log::*;
 
-use std::rc::Rc;
-
 pub struct Window<'a> {
-    win: Rc<WinitWindow>,
+    win: Arc<WinitWindow>,
     evt_loop: EventLoop<()>,
 
     render_fn: Box<dyn FnMut() + 'a>,
@@ -28,7 +28,7 @@ impl<'a> Window<'a> {
      */
     pub fn raw(win: WinitWindow, evt_loop: EventLoop<()>) -> Self {
         Self {
-            win: Rc::new(win),
+            win: Arc::new(win),
             evt_loop,
             render_fn: Box::new(|| {}),
             resize_fn: Box::new(|_| {}),
@@ -42,7 +42,7 @@ impl<'a> Window<'a> {
      * @param title The title of the window
      * @return The window
      */
-    pub fn new(size: (u32, u32), title: &String, resizable: bool) -> Window {
+    pub fn new(size: (u32, u32), title: String, resizable: bool) -> Window<'a> {
         debug!("Ebb: Creating window");
     
         let event_loop = EventLoop::new().unwrap();
@@ -127,14 +127,15 @@ impl<'a> Window<'a> {
         self.resize_fn = Box::new(cbk);
     }
 
-    pub fn raw_window(&self) -> &Rc<WinitWindow> {
-        &self.win
+    pub fn raw_window(&self) -> Arc<WinitWindow> {
+        self.win.clone()
     }
 }
 
-/**
- * Same as Window::new
- */
-pub fn new(preferred_size: (u32, u32), preferred_title: &String, resizable: bool) -> Window {
-    return Window::new(preferred_size, preferred_title, resizable);
+#[macro_export]
+macro_rules! create_instance {
+    ($window:expr) => {{
+        let win_clone = $window.raw_window(); // Borrow the raw window
+        ebb::instance::Instance::new(win_clone) // Create the instance with the borrowed raw window
+    }};
 }

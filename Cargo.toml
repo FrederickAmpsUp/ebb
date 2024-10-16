@@ -11,6 +11,7 @@ console_error_panic_hook = "0.1.6"
 winit = { version = "0.29", features = ["rwh_05"] }
 web-sys = "0"
 wgpu = "22.0"
+futures = "0.3.31"
 
 [dev-dependencies]
 async-std = { version = "1.10", features = ["attributes"] }
@@ -24,11 +25,6 @@ path = "tests/test_window_01.rs"
 harness = false
 
 [[test]]
-name = "test_render_02"
-path = "tests/test_render_02.rs"
-harness = false
-
-[[test]]
-name = "test_instance_03"
-path = "tests/test_instance_03.rs"
+name = "test_instance_02"
+path = "tests/test_instance_02.rs"
 harness = false

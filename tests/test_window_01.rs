@@ -3,8 +3,7 @@ use ebb;
 fn main() {
     ebb::setup();
 
-    let title = String::from("Ebb Test Window");
-    let mut window = ebb::window::new((1920, 1080), &title, false);
+    let mut window = ebb::window::Window::new((1920, 1080), String::from("Ebb Test Window"), false);
 
     window.on_resize(|_new_size| {
         // nothing here :)
