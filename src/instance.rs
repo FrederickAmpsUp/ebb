@@ -1,6 +1,6 @@
 use wgpu;
 use winit::dpi::PhysicalSize;
-use std::{cmp::min, sync::Arc};
+use std::sync::Arc;
 
 #[allow(dead_code, reason = "annoying warnings")]
 pub struct Instance<'a> {
