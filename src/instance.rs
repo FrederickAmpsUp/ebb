@@ -1,6 +1,8 @@
 use wgpu;
 use winit::dpi::PhysicalSize;
 use std::sync::Arc;
+use crate::surface::Surface;
+use crate::rendering_context::RenderingContext;
 
 #[allow(dead_code, reason = "annoying warnings")]
 pub struct Instance<'a> {
@@ -90,5 +92,21 @@ impl<'a> Instance<'a> {
             self.config.height = new_size.height;
             self.surface.configure(&self.device, &self.config);
         }
+    }
+
+    pub fn raw_device(&self) -> &wgpu::Device {
+        &self.device
+    }
+
+    pub fn raw_queue(&self) -> &wgpu::Queue {
+        &self.queue
+    }
+
+    pub fn window_surface(&'a self) -> Surface<'a> {
+        Surface::new(&self.surface)
+    }
+
+    pub fn create_rendering_context(&self) -> RenderingContext {
+        todo!()
     }
 }

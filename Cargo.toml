@@ -28,3 +28,8 @@ harness = false
 name = "test_instance_02"
 path = "tests/test_instance_02.rs"
 harness = false
+
+[[test]]
+name = "test_ecs_03"
+path = "tests/test_ecs_03.rs"
+harness = false

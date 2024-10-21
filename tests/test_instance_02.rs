@@ -9,7 +9,7 @@ fn main() {
     instance = ebb::create_instance!(window);
 
     window.on_render(|| {
-
+        // can draw stuff here
     });
 
     window.on_resize(|new_size| {
