@@ -38,7 +38,6 @@ fn main() {
         TestVertex { position: vec2(0.5, -0.5) },
     ];
 
-        // TODO: update pipeline to enable rendering of vertices
     let pipeline = ebb::rendering::RenderPipeline::new(&instance, &[TestVertex::LAYOUT], wgpu::include_wgsl!("assets/shaders/test_triangle.wgsl"));
     let test_triangle = ebb::mesh::RenderMesh::entity(&instance, Rc::new(pipeline), vertices);
 
