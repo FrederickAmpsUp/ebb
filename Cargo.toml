@@ -33,3 +33,8 @@ harness = false
 name = "test_ecs_03"
 path = "tests/test_ecs_03.rs"
 harness = false
+
+[[test]]
+name = "portals"
+path = "tests/portals/portals.rs"
+harness = false

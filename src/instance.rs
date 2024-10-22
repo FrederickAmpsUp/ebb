@@ -2,7 +2,6 @@ use wgpu;
 use winit::dpi::PhysicalSize;
 use std::sync::Arc;
 use crate::surface::Surface;
-use crate::rendering_context::RenderingContext;
 
 #[allow(dead_code, reason = "annoying warnings")]
 pub struct Instance<'a> {
@@ -104,9 +103,5 @@ impl<'a> Instance<'a> {
 
     pub fn window_surface(&'a self) -> Surface<'a> {
         Surface::new(&self.surface)
-    }
-
-    pub fn create_rendering_context(&self) -> RenderingContext {
-        todo!()
     }
 }

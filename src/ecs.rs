@@ -36,6 +36,7 @@ impl Entity {
     }
 }
 
+// TODO: a way to search through the entities to find ones with a specific component (fast)
 impl World {
     pub fn new() -> Self {
         Self {

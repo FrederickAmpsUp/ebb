@@ -1,5 +1,7 @@
 use ebb;
 
+// bad
+
 struct ClearScreen {
     color: wgpu::Color
 }
