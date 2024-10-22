@@ -4,7 +4,6 @@ use std::rc::Rc;
 use crate::Instance;
 use wgpu;
 use wgpu::util::DeviceExt;
-
 pub trait Vertex: Copy + Clone + bytemuck::Pod + bytemuck::Zeroable {
     const LAYOUT: wgpu::VertexBufferLayout<'static>;
 }

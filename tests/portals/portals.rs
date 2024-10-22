@@ -1,26 +1,12 @@
 use std::rc::Rc;
 use glam::*;
 use ebb::{self, mesh::Vertex};
+use ebb_macros::Vertex;
 
 #[repr(C)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Vertex)]
 struct TestVertex {
     position: Vec2
-}
-unsafe impl bytemuck::Pod for TestVertex {}
-unsafe impl bytemuck::Zeroable for TestVertex {}
-impl ebb::mesh::Vertex for TestVertex {
-    const LAYOUT: wgpu::VertexBufferLayout<'static> = wgpu::VertexBufferLayout {
-        array_stride: std::mem::size_of::<TestVertex>() as wgpu::BufferAddress,
-        step_mode: wgpu::VertexStepMode::Vertex,
-        attributes: &[
-            wgpu::VertexAttribute {
-                offset: 0,
-                shader_location: 0,
-                format: wgpu::VertexFormat::Float32x2,
-            },
-        ]
-    };
 }
 
 fn main() {
@@ -32,7 +18,7 @@ fn main() {
 
     instance = ebb::create_instance!(window);
 
-    let vertices = vec![
+    let vertices: Vec<TestVertex> = vec![
         TestVertex { position: vec2(0.0, 0.5) },
         TestVertex { position: vec2(-0.5, -0.5) },
         TestVertex { position: vec2(0.5, -0.5) },
