@@ -1,7 +1,7 @@
 use wgpu;
 use crate::Instance;
 use crate::ecs;
-use std::rc::Rc;
+use crate::mesh;
 
 pub struct RenderContext {
     encoder: wgpu::CommandEncoder
@@ -18,7 +18,7 @@ impl RenderPipeline {
     }
 
         // TODO: more configuration options
-    pub fn new(instance: &Instance, shader: wgpu::ShaderModuleDescriptor) -> Self {
+    pub fn new(instance: &Instance, buffers: &[wgpu::VertexBufferLayout], shader: wgpu::ShaderModuleDescriptor) -> Self {
         let shader = instance.raw_device().create_shader_module(shader);
         let layout = instance.raw_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("Ebb Builtin RenderPipeline - PipelineLayout"),
@@ -32,7 +32,7 @@ impl RenderPipeline {
             vertex: wgpu::VertexState {
                 module: &shader,
                 entry_point: "vs_main",
-                buffers: &[],
+                buffers,
                 compilation_options: wgpu::PipelineCompilationOptions::default(),
             },
             fragment: Some(wgpu::FragmentState {
@@ -77,23 +77,6 @@ impl RenderPipeline {
     }
 }
 
-pub struct RenderMesh {
-    renderer: Rc<RenderPipeline>
-}
-impl ecs::Component for RenderMesh {}
-
-impl RenderMesh {
-    pub fn new(renderer: Rc<RenderPipeline>) -> Self {
-        Self { renderer }
-    }
-
-    pub fn entity(renderer: Rc<RenderPipeline>) -> ecs::Entity {
-        let mut e = ecs::Entity::new();
-        e.add_component(Self::new(renderer));
-        e
-    }
-}
-
 pub struct BasicRenderSystem {
     instance: Instance<'static>,
     clear_color: wgpu::Color
@@ -112,9 +95,12 @@ impl ecs::System for BasicRenderSystem {
         let mut render_pass = render_ctx.clear(&view, self.clear_color);
 
         for entity in world {
-            if let Some(pipeline) = entity.get_component::<RenderMesh>() {
-                render_pass.set_pipeline(&pipeline.renderer.pipeline);
-                render_pass.draw(0..3, 0..1); // CHANGE ME
+            if let Some(component) = entity.get_component::<mesh::RenderMesh>() {
+                render_pass.set_pipeline(&component.get_renderer().pipeline);
+                let vb = component.get_vertex_buffer();
+
+                render_pass.set_vertex_buffer(0, vb.slice(..));
+                render_pass.draw(0..(component.get_num_vertices() as u32), 0..1);
             }
         }
 
