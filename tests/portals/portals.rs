@@ -13,15 +13,27 @@ impl TestRendering {
 }
 impl ebb::ecs::Component for TestRendering {}
 
-struct TestRenderingSystem;
+struct TestRenderingSystem {
+    instance: ebb::Instance<'static>
+}
 
 impl ebb::ecs::System for TestRenderingSystem {
     fn update(&self, world: &mut Vec<ebb::ecs::Entity>) {
+        let output = self.instance.window_surface().wgpu_surface().get_current_texture().expect("Failed to acquire window surface texture");
+        let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
+
+        let mut render_ctx = ebb::rendering::RenderContext::new(&self.instance);
+
+        render_ctx.clear(&view, wgpu::Color { r: 1.0, g: 0.0, b: 1.0, a: 1.0 });
+
         for entity in world {
             if entity.has_component::<TestRendering>() {
                 // TODO: render
             }
         }
+
+        render_ctx.submit(&self.instance);
+        output.present();
     }
 }
 
@@ -31,13 +43,14 @@ fn main() {
     let render_tester = TestRendering::entity();
 
     world.add_entity(render_tester);
-    world.add_system(TestRenderingSystem);
 
     let instance: ebb::Instance<'static>;
 
     let mut window = ebb::Window::new((800, 600), String::from("Ebb Test - Portals"), false);
 
     instance = ebb::create_instance!(window);
+
+    world.add_system(TestRenderingSystem { instance });
 
     /*
         // TODO: figure out the freaking resizing thing (borrow checker)
@@ -46,15 +59,7 @@ fn main() {
     });*/
 
     window.on_render(|| {
-        let output = instance.window_surface().wgpu_surface().get_current_texture().expect("Failed to acquire window surface texture");
-        let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
-
-        let mut render_ctx = ebb::rendering::RenderContext::new(&instance);
-
-        render_ctx.clear(&view, wgpu::Color { r: 1.0, g: 0.0, b: 1.0, a: 1.0 });
-
-        render_ctx.submit(&instance);
-        output.present();
+        world.update();
     });
 
     window.run();
