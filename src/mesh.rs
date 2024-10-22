@@ -11,13 +11,16 @@ pub trait Vertex: Copy + Clone + bytemuck::Pod + bytemuck::Zeroable {
 pub struct RenderMesh {
     renderer: Rc<RenderPipeline>,
     vertex_buffer: wgpu::Buffer,
-    num_vertices: usize
+    num_vertices: usize,
+    index_buffer: wgpu::Buffer,
+    num_indices: usize
 }
 impl ecs::Component for RenderMesh {}
 
 impl RenderMesh {
-    pub fn new<V: Vertex>(instance: &Instance, renderer: Rc<RenderPipeline>, vertices: Vec<V>) -> Self {
+    pub fn new<V: Vertex>(instance: &Instance, renderer: Rc<RenderPipeline>, vertices: Vec<V>, indices: Vec<u32>) -> Self {
         let vert_slice = vertices.as_slice();
+        let ind_slice = indices.as_slice();
 
         let vertex_buffer = instance.raw_device().create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Ebb Builtin RenderMesh - Vertex Buffer"),
@@ -25,12 +28,18 @@ impl RenderMesh {
             usage: wgpu::BufferUsages::VERTEX
         });
 
-        Self { renderer, vertex_buffer, num_vertices: vertices.len() }
+        let index_buffer = instance.raw_device().create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Ebb Builtin RenderMesh - Index Buffer"),
+            contents: bytemuck::cast_slice(ind_slice),
+            usage: wgpu::BufferUsages::INDEX
+        });
+
+        Self { renderer, vertex_buffer, num_vertices: vertices.len(), index_buffer, num_indices: indices.len() }
     }
 
-    pub fn entity<V: Vertex>(instance: &Instance, renderer: Rc<RenderPipeline>, vertices: Vec<V>) -> ecs::Entity {
+    pub fn entity<V: Vertex>(instance: &Instance, renderer: Rc<RenderPipeline>, vertices: Vec<V>, indices: Vec<u32>) -> ecs::Entity {
         let mut e = ecs::Entity::new();
-        e.add_component(Self::new(instance, renderer, vertices));
+        e.add_component(Self::new(instance, renderer, vertices, indices));
         e
     }
 
@@ -44,5 +53,13 @@ impl RenderMesh {
 
     pub fn get_num_vertices(&self) -> usize {
         self.num_vertices
+    }
+
+    pub fn get_index_buffer(&self) -> &wgpu::Buffer {
+        &self.index_buffer
+    }
+
+    pub fn get_num_indices(&self) -> usize {
+        self.num_indices
     }
 }

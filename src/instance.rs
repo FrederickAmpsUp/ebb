@@ -47,7 +47,7 @@ impl<'a> Instance<'a> {
 
         let surface_caps = surface.get_capabilities(&adapter);
 
-        let surface_format = surface_caps.formats.iter().find(|f| f.is_srgb()).copied().unwrap_or(surface_caps.formats[0]); // TODO: better surface format selection with a score function
+        let surface_format = surface_caps.formats.iter().find(|f| !f.is_srgb()).copied().unwrap_or(surface_caps.formats[0]); // TODO: better surface format selection with a score function
 
         let size = window.inner_size();
 

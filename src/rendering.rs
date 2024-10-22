@@ -98,9 +98,11 @@ impl ecs::System for BasicRenderSystem {
             if let Some(component) = entity.get_component::<mesh::RenderMesh>() {
                 render_pass.set_pipeline(&component.get_renderer().pipeline);
                 let vb = component.get_vertex_buffer();
+                let ib = component.get_index_buffer();
 
                 render_pass.set_vertex_buffer(0, vb.slice(..));
-                render_pass.draw(0..(component.get_num_vertices() as u32), 0..1);
+                render_pass.set_index_buffer(ib.slice(..), wgpu::IndexFormat::Uint32);
+                render_pass.draw_indexed(0..(component.get_num_indices() as u32), 0, 0..1);
             }
         }
 

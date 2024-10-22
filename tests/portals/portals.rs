@@ -6,7 +6,8 @@ use ebb_macros::Vertex;
 #[repr(C)]
 #[derive(Clone, Copy, Vertex)]
 struct TestVertex {
-    position: Vec2
+    position: Vec2,
+    color: Vec3
 }
 
 fn main() {
@@ -19,13 +20,17 @@ fn main() {
     instance = ebb::create_instance!(window);
 
     let vertices: Vec<TestVertex> = vec![
-        TestVertex { position: vec2(0.0, 0.5) },
-        TestVertex { position: vec2(-0.5, -0.5) },
-        TestVertex { position: vec2(0.5, -0.5) },
+        TestVertex { position: vec2(0.0, 0.5), color: vec3(1.0, 0.0, 0.0) },
+        TestVertex { position: vec2(-0.5, -0.5), color: vec3(0.0, 1.0, 0.0) },
+        TestVertex { position: vec2(0.5, -0.5), color: vec3(0.0, 0.0, 1.0) },
+    ];
+
+    let indices: Vec<u32> = vec![
+        0, 1, 2
     ];
 
     let pipeline = ebb::rendering::RenderPipeline::new(&instance, &[TestVertex::LAYOUT], wgpu::include_wgsl!("assets/shaders/test_triangle.wgsl"));
-    let test_triangle = ebb::mesh::RenderMesh::entity(&instance, Rc::new(pipeline), vertices);
+    let test_triangle = ebb::mesh::RenderMesh::entity(&instance, Rc::new(pipeline), vertices, indices);
 
     world.add_entity(test_triangle);
     world.add_system(ebb::rendering::BasicRenderSystem::new(instance, wgpu::Color { r: 1.0, g: 0.0, b: 1.0, a: 1.0 }));
