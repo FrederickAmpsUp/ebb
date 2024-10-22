@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use ebb;
 
 fn main() {
@@ -9,6 +11,10 @@ fn main() {
 
     instance = ebb::create_instance!(window);
 
+    let pipeline = ebb::rendering::RenderPipeline::new(&instance, wgpu::include_wgsl!("assets/shaders/test_triangle_nobuf.wgsl"));
+    let test_triangle = ebb::rendering::RenderMesh::entity(Rc::new(pipeline));
+
+    world.add_entity(test_triangle);
     world.add_system(ebb::rendering::BasicRenderSystem::new(instance, wgpu::Color { r: 1.0, g: 0.0, b: 1.0, a: 1.0 }));
 
     /*

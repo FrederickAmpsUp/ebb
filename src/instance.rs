@@ -101,6 +101,10 @@ impl<'a> Instance<'a> {
         &self.queue
     }
 
+    pub fn raw_config(&self) -> &wgpu::SurfaceConfiguration {
+        &self.config
+    }
+
     pub fn window_surface(&'a self) -> Surface<'a> {
         Surface::new(&self.surface)
     }
