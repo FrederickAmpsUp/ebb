@@ -3,6 +3,13 @@ use crate::Instance;
 use crate::ecs;
 use crate::mesh;
 
+/*
+ * TODO:
+ * - Shader abstraction and preprocesser (#include directives and prelude)
+ * - More configurability for render pipelines
+ * - Better abstraction for RenderContext
+*/
+
 pub struct RenderContext {
     encoder: wgpu::CommandEncoder
 }
@@ -17,7 +24,6 @@ impl RenderPipeline {
         }
     }
 
-        // TODO: more configuration options
     pub fn new(instance: &Instance, buffers: &[wgpu::VertexBufferLayout], shader: wgpu::ShaderModuleDescriptor) -> Self {
         let shader = instance.raw_device().create_shader_module(shader);
         let layout = instance.raw_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -70,6 +76,10 @@ impl RenderPipeline {
         Self {
             pipeline: render_pipeline
         }
+    }
+
+    pub fn for_mesh<V: mesh::Vertex>(instance: &Instance, shader: wgpu::ShaderModuleDescriptor) -> Self {
+        Self::new(instance, &[V::LAYOUT], shader)
     }
 
     pub fn raw_pipeline(&self) -> &wgpu::RenderPipeline {
@@ -130,7 +140,6 @@ impl RenderContext {
         }
     }
 
-        // TODO: higher level of abstraction
     pub fn create_render_pass_raw(&mut self, desc: &wgpu::RenderPassDescriptor) -> wgpu::RenderPass {
         self.encoder.begin_render_pass(desc)
     }

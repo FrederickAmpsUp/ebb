@@ -1,6 +1,6 @@
 use std::rc::Rc;
 use glam::*;
-use ebb::{self, mesh::Vertex};
+use ebb;
 use ebb_macros::Vertex;
 
 #[repr(C)]
@@ -11,13 +11,7 @@ struct TestVertex {
 }
 
 fn main() {
-    let mut world = ebb::ecs::World::new();
-
-    let instance: ebb::Instance<'static>;
-
-    let mut window = ebb::Window::new((800, 600), String::from("Ebb Test - Portals"), false);
-
-    instance = ebb::create_instance!(window);
+    let mut engine = ebb::Engine::new((800, 600), String::from("Ebb Test - Portals"));
 
     let vertices: Vec<TestVertex> = vec![
         TestVertex { position: vec2(0.0, 0.5), color: vec3(1.0, 0.0, 0.0) },
@@ -29,21 +23,10 @@ fn main() {
         0, 1, 2
     ];
 
-    let pipeline = ebb::rendering::RenderPipeline::new(&instance, &[TestVertex::LAYOUT], wgpu::include_wgsl!("assets/shaders/test_triangle.wgsl"));
-    let test_triangle = ebb::mesh::RenderMesh::entity(&instance, Rc::new(pipeline), vertices, indices);
+    let pipeline = ebb::rendering::RenderPipeline::for_mesh::<TestVertex>(&engine.instance, wgpu::include_wgsl!("assets/shaders/test_triangle.wgsl"));
+    let test_triangle = ebb::mesh::RenderMesh::entity(&engine.instance, Rc::new(pipeline), vertices, indices);
 
-    world.add_entity(test_triangle);
-    world.add_system(ebb::rendering::BasicRenderSystem::new(instance, wgpu::Color { r: 1.0, g: 0.0, b: 1.0, a: 1.0 }));
+    engine.world.add_entity(test_triangle);
 
-    /*
-        // TODO: figure out the freaking resizing thing (borrow checker)
-    window.on_resize(|new_size| {
-        instance.resize(new_size);
-    });*/
-
-    window.on_render(|| {
-        world.update();
-    });
-
-    window.run();
+    engine.run();
 }
