@@ -1,5 +1,3 @@
-use wgpu::core::instance;
-
 use crate as ebb;
 
 pub struct Engine {
