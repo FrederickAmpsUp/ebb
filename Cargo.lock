@@ -654,7 +654,6 @@ dependencies = [
  "bytemuck",
  "console_error_panic_hook",
  "console_log",
- "ebb_macros",
  "env_logger",
  "futures",
  "glam",

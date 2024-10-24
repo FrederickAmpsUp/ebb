@@ -1,14 +1,26 @@
 use std::rc::Rc;
+use bytemuck::{Pod, Zeroable};
 use glam::*;
 use ebb;
-use ebb_macros::Vertex;
 
 #[repr(C)]
-#[derive(Clone, Copy, Vertex)]
+#[derive(Clone, Copy)]
 struct TestVertex {
     position: Vec2,
     color: Vec3
 }
+
+// TODO: get the procedural macro for attribute generation working again
+impl ebb::mesh::Vertex for TestVertex {
+    const LAYOUT: wgpu::VertexBufferLayout<'static> = wgpu::VertexBufferLayout {
+        array_stride: size_of::<TestVertex>() as u64,
+        step_mode: wgpu::VertexStepMode::Vertex,
+        attributes: &wgpu::vertex_attr_array![0 => Float32x2, 1 => Float32x3],
+    };
+}
+
+unsafe impl Pod for TestVertex {}
+unsafe impl Zeroable for TestVertex {}
 
 fn main() {
     let mut engine = ebb::Engine::new((800, 600), String::from("Ebb Test - Portals"));
