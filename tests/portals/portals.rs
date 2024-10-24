@@ -12,6 +12,8 @@ struct TestVertex {
 
 fn main() {
     let mut engine = ebb::Engine::new((800, 600), String::from("Ebb Test - Portals"));
+    
+    let pipeline = ebb::rendering::RenderPipeline::for_mesh::<TestVertex>(&engine.instance, wgpu::include_wgsl!("assets/shaders/test_triangle.wgsl"));
 
     let vertices: Vec<TestVertex> = vec![
         TestVertex { position: vec2(0.0, 0.5), color: vec3(1.0, 0.0, 0.0) },
@@ -23,7 +25,6 @@ fn main() {
         0, 1, 2
     ];
 
-    let pipeline = ebb::rendering::RenderPipeline::for_mesh::<TestVertex>(&engine.instance, wgpu::include_wgsl!("assets/shaders/test_triangle.wgsl"));
     let test_triangle = ebb::mesh::RenderMesh::entity(&engine.instance, Rc::new(pipeline), vertices, indices);
 
     engine.world.add_entity(test_triangle);
