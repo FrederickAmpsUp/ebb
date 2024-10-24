@@ -10,7 +10,7 @@ use crate::mesh;
  * - Better abstraction for RenderContext
 */
 
-/// An abstraction of wgpu::CommandEncoder
+/// An interface used for creating command buffers for rendering.
 pub struct RenderContext {
     encoder: wgpu::CommandEncoder
 }
@@ -23,12 +23,12 @@ impl RenderPipeline {
     /// Creates a render pipeline from the raw WGPU descriptor.
     /// # Arguments
     /// 
-    /// * `instance` - The instance to use when creating the pipeline
-    /// * `desc` - The WGPU descriptor to use when creating the pipeline
+    /// * `instance` - The instance to use when creating the pipeline.
+    /// * `desc` - The WGPU descriptor to use when creating the pipeline.
     /// 
     /// # Returns
     /// 
-    /// The created render pipeline
+    /// The created render pipeline.
     /// 
     /// # Examples
     /// 
@@ -45,13 +45,13 @@ impl RenderPipeline {
     /// 
     /// # Arguments
     /// 
-    /// * `instance` - The instance to use when creating the pipeline
-    /// * `buffers` - The set of vertex buffer layouts to use 
-    /// * `shader` - The shader module (`vs_main` `fs_main` required) to use for rendering
+    /// * `instance` - The instance to use when creating the pipeline.
+    /// * `buffers` - The set of vertex buffer layouts to use.
+    /// * `shader` - The shader module (`vs_main` `fs_main` required) to use for rendering.
     /// 
     /// # Returns
     /// 
-    /// The created render pipeline
+    /// The created render pipeline.
     /// 
     /// # Examples
     /// 
@@ -112,20 +112,20 @@ impl RenderPipeline {
         }
     }
 
-    /// Creates a render pipeline for a mesh with the specified vertex type
+    /// Creates a render pipeline for a mesh with the specified vertex type.
     /// 
     /// # Type Parameters
     /// 
-    /// * `V` - an [mesh::Vertex], the layout of which is used as the vertex buffer in slot 0
+    /// * `V` - a [mesh::Vertex], the layout of which is used as the vertex buffer in slot 0.
     /// 
     /// # Arguments
     /// 
-    /// * `instance` - The instance to use when creating the pipeline
-    /// * `shader` - The shader module (`vs_main` `fs_main` required) to use for rendering
+    /// * `instance` - The instance to use when creating the pipeline.
+    /// * `shader` - The shader module (`vs_main` `fs_main` required) to use for rendering.
     /// 
     /// # Returns
     /// 
-    /// The created render pipeline
+    /// The created render pipeline.
     /// 
     /// # Examples
     /// 
@@ -140,18 +140,27 @@ impl RenderPipeline {
     /// 
     /// # Returns
     /// 
-    /// A reference to the internal [wgpu::RenderPipeline]
+    /// A reference to the internal [wgpu::RenderPipeline].
     pub fn raw_pipeline(&self) -> &wgpu::RenderPipeline {
         &self.pipeline
     }
 }
 
 /// An [ecs::System] for basic rendering tasks.
+/// It clears the screen, then renders every entity with a RenderMesh component.
+/// 
+/// This struct takes ownership of an [Instance] which is used for rendering.
 pub struct BasicRenderSystem {
     instance: Instance<'static>,
     clear_color: wgpu::Color
 }
 impl ecs::System for BasicRenderSystem {
+
+    /// Clears the screen and renders all entities with a RenderMesh component.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `world` - The collection of entities to operate on.
     fn update(&self, world: &mut Vec<ecs::Entity>) {
         let mut render_ctx = RenderContext::new(&self.instance);
         let output = self.instance
@@ -184,6 +193,16 @@ impl ecs::System for BasicRenderSystem {
 }
 
 impl BasicRenderSystem {
+    /// Creates a new [BasicRenderSystem]
+    /// 
+    /// # Arguments
+    /// 
+    /// * `instance` - The [Instance] to use for rendering. Ownership is passed to the [BasicRenderSystem].
+    /// * `clear_color` - The color to clear the screen to before rendering.
+    /// 
+    /// # Returns
+    /// 
+    /// The [BasicRenderSystem].
     pub fn new(instance: Instance<'static>, clear_color: wgpu::Color) -> Self {
         Self {
             instance, clear_color
@@ -192,6 +211,16 @@ impl BasicRenderSystem {
 }
 
 impl RenderContext {
+
+    /// Creates a new [RenderContext].
+    /// 
+    /// # Arguments
+    /// 
+    /// * `instance` - the [Instance] to use for rendering. Borrowed for the duration of the function execution.
+    /// 
+    /// # Returns
+    /// 
+    /// The created [RenderContext].
     pub fn new<'a>(instance: &Instance<'a>) -> Self {
         Self {
             encoder: instance.raw_device().create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -200,10 +229,31 @@ impl RenderContext {
         }
     }
 
+    /// Creates a [wgpu::RenderPass] from a raw [wgpu::RenderPassDescriptor].
+    /// Should generally only be used internally.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `desc` - the [wgpu::RenderPassDescriptor] to use when creating the [wgpu::RenderPass].
+    /// 
+    /// # Returns
+    /// 
+    /// The [wgpu::RenderPass] matching the argument.
     pub fn create_render_pass_raw(&mut self, desc: &wgpu::RenderPassDescriptor) -> wgpu::RenderPass {
         self.encoder.begin_render_pass(desc)
     }
 
+    /// Creates a [wgpu::RenderPass] which starts by clearing the input texture to a color.
+    /// Should generally only be used internally.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `surf_view` - the [wgpu::TextureView] to clear.
+    /// * `color` - the [wgpu::Color] to clear the texture to.
+    /// 
+    /// # Returns
+    /// 
+    /// The [wgpu::RenderPass], ready for rendering, starting with a clear op.
     pub fn clear(&mut self, surf_view: &wgpu::TextureView, color: wgpu::Color) -> wgpu::RenderPass {
         self.create_render_pass_raw(&wgpu::RenderPassDescriptor {
             label: Some("Ebb Builtin RenderContext - Clear"),
@@ -221,10 +271,22 @@ impl RenderContext {
         })
     }
 
+    /// Finishes rendering and creates a command buffer.
+    /// This method consumes `self`.
+    /// This should generally only be used internally.
+    /// 
+    /// # Returns
+    /// 
+    /// The [wgpu::CommandBuffer] which may be submit to the GPU for rendering.
     pub fn to_command_buffer(self) -> wgpu::CommandBuffer {
         self.encoder.finish()
     }
 
+    /// Submits previously issued draw commands to the GPU for rendering.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `instance` - the [Instance] to use for rendering. Borrowed for the duration of the function execution.
     pub fn submit<'a>(self, instance: &Instance<'a>) {
         instance.raw_queue().submit(std::iter::once(self.to_command_buffer()));
     }

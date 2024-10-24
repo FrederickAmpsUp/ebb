@@ -1,6 +1,6 @@
 [package]
 name = "ebb"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Frederick Ziola <frederick.ziola@gmail.com>"]
 description = "An ECS-based game engine built on WGPU and Winit"
@@ -8,11 +8,6 @@ license = "GPL-3.0"
 repository = "https://github.com/FrederickAmpsUp/ebb"
 homepage = "https://github.com/FrederickAmpsUp/ebb"
 documentation = "https://docs.rs/ebb"
-
-[workspace]
-members = [
-    "macros"
-]
 
 
 [dependencies]
