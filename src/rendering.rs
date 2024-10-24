@@ -10,20 +10,54 @@ use crate::mesh;
  * - Better abstraction for RenderContext
 */
 
+/// An abstraction of wgpu::CommandEncoder
 pub struct RenderContext {
     encoder: wgpu::CommandEncoder
 }
 
+/// A collection of shader inputs (vertices) and color attachments (framebuffers)
 pub struct RenderPipeline {
     pipeline: wgpu::RenderPipeline
 }
 impl RenderPipeline {
+    /// Creates a render pipeline from the raw WGPU descriptor.
+    /// # Arguments
+    /// 
+    /// * `instance` - The instance to use when creating the pipeline
+    /// * `desc` - The WGPU descriptor to use when creating the pipeline
+    /// 
+    /// # Returns
+    /// 
+    /// The created render pipeline
+    /// 
+    /// # Examples
+    /// 
+    /// ```ignore
+    /// let pipeline = ebb::rendering::RenderPipeline::from_raw(&g_instance, &descriptor);
+    /// ```
     pub fn from_raw(instance: &Instance, desc: &wgpu::RenderPipelineDescriptor) -> Self {
         Self {
             pipeline: instance.raw_device().create_render_pipeline(desc)
         }
     }
 
+    /// Creates a render pipeline from the vertex configuration and shader.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `instance` - The instance to use when creating the pipeline
+    /// * `buffers` - The set of vertex buffer layouts to use 
+    /// * `shader` - The shader module (`vs_main` `fs_main` required) to use for rendering
+    /// 
+    /// # Returns
+    /// 
+    /// The created render pipeline
+    /// 
+    /// # Examples
+    /// 
+    /// ```ignore
+    /// let pipeline = ebb::rendering::RenderPipeline::new(&g_instance, &[MeshVertex::LAYOUT], wgpu::include_wgsl!("shaders/example.wgsl"));
+    /// ```
     pub fn new(instance: &Instance, buffers: &[wgpu::VertexBufferLayout], shader: wgpu::ShaderModuleDescriptor) -> Self {
         let shader = instance.raw_device().create_shader_module(shader);
         let layout = instance.raw_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -78,15 +112,41 @@ impl RenderPipeline {
         }
     }
 
+    /// Creates a render pipeline for a mesh with the specified vertex type
+    /// 
+    /// # Type Parameters
+    /// 
+    /// * `V` - an [mesh::Vertex], the layout of which is used as the vertex buffer in slot 0
+    /// 
+    /// # Arguments
+    /// 
+    /// * `instance` - The instance to use when creating the pipeline
+    /// * `shader` - The shader module (`vs_main` `fs_main` required) to use for rendering
+    /// 
+    /// # Returns
+    /// 
+    /// The created render pipeline
+    /// 
+    /// # Examples
+    /// 
+    /// ```ignore
+    /// let pipeline = ebb::rendering::RenderPipeline::for_mesh::<MeshVertex>(&g_instance, wgpu::include_wgsl("shaders/example.wgsl"));
+    /// ```
     pub fn for_mesh<V: mesh::Vertex>(instance: &Instance, shader: wgpu::ShaderModuleDescriptor) -> Self {
         Self::new(instance, &[V::LAYOUT], shader)
     }
 
+    /// Get the raw WGPU pipeline objects
+    /// 
+    /// # Returns
+    /// 
+    /// A reference to the internal [wgpu::RenderPipeline]
     pub fn raw_pipeline(&self) -> &wgpu::RenderPipeline {
         &self.pipeline
     }
 }
 
+/// An [ecs::System] for basic rendering tasks.
 pub struct BasicRenderSystem {
     instance: Instance<'static>,
     clear_color: wgpu::Color
