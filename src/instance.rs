@@ -3,7 +3,7 @@ use winit::dpi::PhysicalSize;
 use std::sync::Arc;
 use crate::surface::Surface;
 
-#[allow(dead_code, reason = "annoying warnings")]
+/// A wrapper over the GPU and window surface.
 pub struct Instance<'a> {
     instance: wgpu::Instance,
     surface: wgpu::Surface<'a>,
@@ -18,6 +18,15 @@ pub struct Instance<'a> {
 }
 
 impl<'a> Instance<'a> {
+    /// Creates a new [Instance].
+    /// 
+    /// # Arguments
+    /// 
+    /// * `window` - the [winit::window::Window] to use.
+    /// 
+    /// # Returns
+    /// 
+    /// The created [Instance].
     pub fn new(window: Arc<winit::window::Window>) -> Self {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::all(),
@@ -70,6 +79,11 @@ impl<'a> Instance<'a> {
         }
     }
 
+    /// Updates internal resources to respond to a changed window size.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `new_size` - the new internal size of the window.
     pub fn resize(&mut self, new_size: &PhysicalSize<u32>) {
         let mut new_size = *new_size;
 
@@ -93,18 +107,38 @@ impl<'a> Instance<'a> {
         }
     }
 
+    /// Gets the raw [wgpu::Device] used internally.
+    /// 
+    /// # Returns
+    /// 
+    /// A reference to the internal [wgpu::Device]
     pub fn raw_device(&self) -> &wgpu::Device {
         &self.device
     }
 
+    /// Gets the raw [wgpu::Queue] used internally.
+    /// 
+    /// # Returns
+    /// 
+    /// A reference to the internal [wgpu::Queue]
     pub fn raw_queue(&self) -> &wgpu::Queue {
         &self.queue
     }
 
+    /// Gets the raw [wgpu::SurfaceConfiguration] used internally.
+    /// 
+    /// # Returns
+    /// 
+    /// A reference to the internal [wgpu::SurfaceConfiguration]
     pub fn raw_config(&self) -> &wgpu::SurfaceConfiguration {
         &self.config
     }
 
+    /// Returns the window surface, which you can render to.
+    /// 
+    /// # Returns
+    /// 
+    /// A [Surface] representing the window, which one may render to.
     pub fn window_surface(&'a self) -> Surface<'a> {
         Surface::new(&self.surface)
     }

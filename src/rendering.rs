@@ -136,7 +136,7 @@ impl RenderPipeline {
         Self::new(instance, &[V::LAYOUT], shader)
     }
 
-    /// Get the raw WGPU pipeline objects
+    /// Get the raw WGPU pipeline object.
     /// 
     /// # Returns
     /// 

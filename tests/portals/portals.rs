@@ -37,7 +37,7 @@ fn main() {
         0, 1, 2
     ];
 
-    let test_triangle = ebb::mesh::RenderMesh::entity(&engine.instance, Rc::new(pipeline), vertices, indices);
+    let test_triangle = ebb::mesh::RenderMesh::entity(&engine.instance, Rc::new(pipeline), &vertices, &indices);
 
     engine.world.add_entity(test_triangle);
 

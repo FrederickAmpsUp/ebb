@@ -9,8 +9,19 @@ use winit::{
     keyboard::*
 };
 
+/*
+ * TODO:
+ * --------------
+ * Fullscreen windows
+ * Input management
+*/
+
 use log::*;
 
+/// A viewport for your application.
+/// This could be a window on desktop platforms, a canvas on web platforms, or the screen on mobile/console.
+/// 
+/// Uses Winit internally.
 pub struct Window<'a> {
     win: Arc<WinitWindow>,
     evt_loop: EventLoop<()>,
@@ -20,13 +31,18 @@ pub struct Window<'a> {
 }
 
 impl<'a> Window<'a> {
-    /**
-     * Creates a new window from the raw Winit fields
-     * @param win The window
-     * @param evt_loop The event loop
-     * @return The VoxelForge-wrapped window
-     */
-    pub fn raw(win: WinitWindow, evt_loop: EventLoop<()>) -> Self {
+
+    /// Creates a window from the raw Winit objects.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `win` - the [winit::window::Window] to use.
+    /// * `evt_loop` - the [winit::event_loop::EventLoop] to use.
+    /// 
+    /// # Returns
+    /// 
+    /// The [Window] wrapper over the inputs.
+    pub fn from_raw(win: WinitWindow, evt_loop: EventLoop<()>) -> Self {
         Self {
             win: Arc::new(win),
             evt_loop,
@@ -35,13 +51,18 @@ impl<'a> Window<'a> {
         }
     }
 
-    /**
-     * Creates a new window.
-     * This will use the ebb-canvas element on web platforms.
-     * @param size The size of the window
-     * @param title The title of the window
-     * @return The window
-     */
+    /// Creates a new window.
+    /// This will use the `ebb-canvas` HTML div element on web platforms.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `size` - The size of the window, in pixels.
+    /// * `title` - The title of the window.
+    /// * `resizable` - Wether or not resizing the window is allowed.
+    /// 
+    /// # Returns
+    /// 
+    /// The [Window] object.
     pub fn new(size: (u32, u32), title: String, resizable: bool) -> Window<'a> {
         debug!("Ebb: Creating window");
     
@@ -80,12 +101,10 @@ impl<'a> Window<'a> {
         }
     
         debug!("Ebb: Window creation complete");
-        Window::raw(window, event_loop)
+        Window::from_raw(window, event_loop)
     }
 
-    /**
-     * Run the window event loop until it closes
-     */
+    /// Runs the window event loop until it closes.
     pub fn run(mut self) {
         let _ = self.evt_loop.run(move |event, control_flow| {
             match event {
@@ -119,19 +138,37 @@ impl<'a> Window<'a> {
         });
     }
 
-    pub fn on_render(&mut self, renderer: impl 'a + FnMut()) {
+    /// Set the render callback for the window.
+    /// The argument will be called every frame.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `renderer` - The render callback subroutine, which will be called every frame.
+    pub fn on_render<T: 'a + FnMut()>(&mut self, renderer: T) {
         self.render_fn = Box::new(renderer);
     }
 
-    pub fn on_resize(&mut self, cbk: impl 'a + FnMut(&PhysicalSize<u32>)) {
+    /// Set the resize callback for the window.
+    /// The argument will be called when the window is resized.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `cbk` - The resize callback function, with a size argument.
+    pub fn on_resize<T:'a + FnMut(&PhysicalSize<u32>)>(&mut self, cbk: T) {
         self.resize_fn = Box::new(cbk);
     }
 
+    /// Get a handle to the internal [winit::window::Window].
+    /// 
+    /// # Returns
+    /// 
+    /// An [Arc] containing the internal [winit::window::Window].
     pub fn raw_window(&self) -> Arc<WinitWindow> {
         self.win.clone()
     }
 }
 
+/// Boilerplate to create an [ebb::instance::Instance] from a [Window]
 #[macro_export]
 macro_rules! create_instance {
     ($window:expr) => {{
