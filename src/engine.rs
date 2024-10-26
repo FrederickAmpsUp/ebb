@@ -1,10 +1,13 @@
+use crate::{surface, Instance};
 use crate as ebb;
+use std::cell::RefCell;
+use std::sync::Arc;
 
 /// A wrapper over the state of an app, including a window, instance, and an [ebb::ecs::World].
 pub struct Engine {
     pub window: ebb::Window<'static>,
     pub world: ebb::ecs::World,
-    pub instance: ebb::Instance<'static>
+    pub instance: ebb::Instance<'static>,
 }
 
 impl Engine {
@@ -30,7 +33,7 @@ impl Engine {
     }
 
     /// Run the application until the window is closed.
-    /// This currently uses the [ebb::rendering::BasicRenderSystem]
+    /// This currently uses the [ebb::rendering::BasicRenderSystem].
     pub fn run(mut self) {
         // TODO: come up with a clean way to use different render systems.
 
@@ -41,5 +44,13 @@ impl Engine {
         });
 
         self.window.run();
+    }
+
+    pub fn get_instance(&self) -> &Instance<'static> {
+        &self.instance
+    }
+
+    pub fn window_surface(&self) -> Arc<RefCell<impl surface::Surface>> {
+        self.instance.window_surface()
     }
 }

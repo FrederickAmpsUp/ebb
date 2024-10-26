@@ -1,6 +1,6 @@
 [package]
 name = "ebb"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2021"
 authors = ["Frederick Ziola <frederick.ziola@gmail.com>"]
 description = "An ECS-based game engine built on WGPU and Winit"
@@ -21,6 +21,7 @@ wgpu = "22.0"
 futures = "0.3.31"
 bytemuck = { version = "1.19.0", features = [ "derive" ] }
 glam = "0.29.0"
+tobj = "4.0.2"
 
 [dependencies.image]
 version = "0.25.4"

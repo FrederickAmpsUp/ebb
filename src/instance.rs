@@ -1,12 +1,13 @@
 use wgpu;
 use winit::dpi::PhysicalSize;
-use std::sync::Arc;
-use crate::surface::Surface;
+use std::{cell::RefCell, sync::Arc};
+
+use crate::surface;
 
 /// A wrapper over the GPU and window surface.
 pub struct Instance<'a> {
     instance: wgpu::Instance,
-    surface: wgpu::Surface<'a>,
+    surface: Arc<RefCell<surface::WindowSurface<'a>>>,
     device: wgpu::Device,
     queue: wgpu::Queue,
 
@@ -75,7 +76,7 @@ impl<'a> Instance<'a> {
         surface.configure(&device, &config);
 
         Self {
-            instance, surface, device, queue, size, config, window
+            instance, surface: Arc::new(RefCell::new(surface::WindowSurface::new(surface))), device, queue, size, config, window
         }
     }
 
@@ -103,7 +104,7 @@ impl<'a> Instance<'a> {
         if new_size.width > 0 && new_size.height > 0 && new_size.width < max_extent && new_size.height < max_extent {
             self.config.width = new_size.width;
             self.config.height = new_size.height;
-            self.surface.configure(&self.device, &self.config);
+            self.surface.borrow_mut().raw_surface().configure(&self.device, &self.config);
         }
     }
 
@@ -138,8 +139,8 @@ impl<'a> Instance<'a> {
     /// 
     /// # Returns
     /// 
-    /// A [Surface] representing the window, which one may render to.
-    pub fn window_surface(&'a self) -> Surface<'a> {
-        Surface::new(&self.surface)
+    /// An [Arc] pointing to a [surface::WindowSurface] representing the window, which one may render to.
+    pub fn window_surface(&self) -> Arc<RefCell<surface::WindowSurface<'a>>>{
+        self.surface.clone()
     }
 }

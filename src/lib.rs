@@ -5,6 +5,8 @@ pub mod ecs;
 pub mod rendering;
 pub mod mesh;
 pub mod engine;
+pub mod camera;
+pub mod transform;
 
 /*
  * TODO:

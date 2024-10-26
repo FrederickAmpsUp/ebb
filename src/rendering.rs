@@ -1,4 +1,7 @@
 use wgpu;
+use crate::camera;
+use crate::mesh::RenderMesh;
+use crate::transform;
 use crate::Instance;
 use crate::ecs;
 use crate::mesh;
@@ -161,34 +164,34 @@ impl ecs::System for BasicRenderSystem {
     /// # Arguments
     /// 
     /// * `world` - The collection of entities to operate on.
-    fn update(&self, world: &mut Vec<ecs::Entity>) {
+    fn update(&self, world: &mut ecs::World) {
         let mut render_ctx = RenderContext::new(&self.instance);
-        let output = self.instance
-            .window_surface()
-            .wgpu_surface()
-            .get_current_texture()
-            .expect("Ebb - Failed to acquire window surface texture");
+        let renderable_entities = &world.get_entities_with_all::<(RenderMesh,)>();
 
-        let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
+        for camera in world.get_entities_with_all::<(transform::Transform3D, camera::Camera)>() {
+            let cam = camera.get_component::<camera::Camera>().unwrap();
 
-        let mut render_pass = render_ctx.clear(&view, self.clear_color);
+            let surf = cam.get_render_target();
 
-        for entity in world {
-            if let Some(component) = entity.get_component::<mesh::RenderMesh>() {
-                render_pass.set_pipeline(&component.get_renderer().pipeline);
-                let vb = component.get_vertex_buffer();
-                let ib = component.get_index_buffer();
+            let mut render_pass = render_ctx.clear(&surf.borrow_mut().get_view(), self.clear_color);
 
-                render_pass.set_vertex_buffer(0, vb.slice(..));
-                render_pass.set_index_buffer(ib.slice(..), wgpu::IndexFormat::Uint32);
-                render_pass.draw_indexed(0..(component.get_num_indices() as u32), 0, 0..1);
+            for entity in renderable_entities {
+                if let Some(component) = entity.get_component::<mesh::RenderMesh>() {
+                    render_pass.set_pipeline(&component.get_renderer().pipeline);
+                    let vb = component.get_vertex_buffer();
+                    let ib = component.get_index_buffer();
+
+                    render_pass.set_vertex_buffer(0, vb.slice(..));
+                    render_pass.set_index_buffer(ib.slice(..), wgpu::IndexFormat::Uint32);
+                    render_pass.draw_indexed(0..(component.get_num_indices() as u32), 0, 0..1);
+                }
             }
+            drop(render_pass);
         }
 
-        drop(render_pass);
-
         render_ctx.submit(&self.instance);
-        output.present();
+
+        self.instance.window_surface().borrow_mut().present();
     }
 }
 

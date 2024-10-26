@@ -2,8 +2,10 @@ use crate::rendering::*;
 use crate::ecs;
 use std::rc::Rc;
 use crate::Instance;
+use bytemuck::Pod;
 use wgpu;
 use wgpu::util::DeviceExt;
+use tobj;
 
 /// Any type that may be used as a vertex in a mesh.
 pub trait Vertex: Copy + Clone + bytemuck::Pod + bytemuck::Zeroable {
@@ -20,6 +22,23 @@ pub struct RenderMesh {
     num_indices: usize
 }
 impl ecs::Component for RenderMesh {}
+
+/// A basic vertex that stores only a 3d position
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct PositionVertex3D {
+    position: [f32; 3]
+}
+impl Vertex for PositionVertex3D {
+    const LAYOUT: wgpu::VertexBufferLayout<'static> = wgpu::VertexBufferLayout {
+        array_stride: size_of::<PositionVertex3D>() as u64,
+        step_mode: wgpu::VertexStepMode::Vertex,
+        attributes: &wgpu::vertex_attr_array![0 => Float32x3],
+    };
+}
+
+unsafe impl Pod for PositionVertex3D {}
+unsafe impl bytemuck::Zeroable for PositionVertex3D {}
 
 impl RenderMesh {
     /// Creates a new [RenderMesh] using the specified [Instance], [RenderPipeline], vertex and index buffer.
@@ -76,6 +95,33 @@ impl RenderMesh {
         let mut e = ecs::Entity::new();
         e.add_component(Self::new(instance, renderer, vertices, indices));
         e
+    }
+
+    /// Load a mesh from a Wavefront .OBJ file.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `instance` - the [Instance] to use when creating WGPU objects. Borrowed for the duration of the function call.
+    /// * `renderer` - a handle to the [RenderPipeline] to be used for rendering.
+    /// * `file` - the filename (relative to working directory) to load.
+    /// 
+    /// # Returns
+    /// 
+    /// The [RenderMesh] component, which may be added to an [ecs::Entity] for rendering.
+    pub fn load_obj(instance: &Instance, renderer: Rc<RenderPipeline>, file: &str) -> Result<Self, tobj::LoadError> {
+            // TODO: better errors
+
+            // we don't care about materials
+        let (models, _) = tobj::load_obj(file, &tobj::GPU_LOAD_OPTIONS)?;
+        if models.len() == 0 {
+            return Err(tobj::LoadError::GenericFailure);
+        };
+
+        let mesh = &models[0].mesh;
+            // TODO: normals/texcoords
+        let vertices = mesh.positions.chunks(3).map(|chunk| PositionVertex3D { position: [chunk[0], chunk[1], chunk[2]] }).collect();
+
+        Ok(Self::new(instance, renderer, &vertices, &mesh.indices))
     }
 
     /// Gets a handle to the internal [RenderPipeline].

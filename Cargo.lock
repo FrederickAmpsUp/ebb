@@ -648,7 +648,7 @@ checksum = "75b325c5dbd37f80359721ad39aca5a29fb04c89279657cffdda8736d0c0b9d2"
 
 [[package]]
 name = "ebb"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "async-std",
  "bytemuck",
@@ -659,6 +659,7 @@ dependencies = [
  "glam",
  "image",
  "log",
+ "tobj",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
@@ -1867,6 +1868,15 @@ dependencies = [
  "arrayref",
  "bytemuck",
  "strict-num",
+]
+
+[[package]]
+name = "tobj"
+version = "4.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3bd4ba05f29e4c65b6c0c11a58b6465ffa820bac890d76ad407b4e81d8372e8"
+dependencies = [
+ "ahash",
 ]
 
 [[package]]

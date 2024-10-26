@@ -16,8 +16,8 @@ pub trait System: 'static {
     /// 
     /// # Arguments
     /// 
-    /// * `world` - a [Vec] of [Entity]s. The [System] is responsible for finding the ones with the desired [Component]\(s).
-    fn update(&self, world: &mut Vec<Entity>);
+    /// * `world` - the [World] to operate on.
+    fn update(&self, world: &mut World);
 }
 
 /// A collection of [Entity]s and [System]s.
@@ -126,10 +126,57 @@ impl World {
         &self.entities
     }
 
+    /// Get a reference of all [Entity]s in this [World] that match the specified [ComponentTuple]
+    /// 
+    /// # Type Parameters
+    /// 
+    /// * `C` - a [ComponentTuple] describing the components to filter.
+    /// 
+    /// # Returns
+    /// 
+    /// A [Vec] of references to all [Entity]s from this [World] that match all types in the [ComponentTuple]
+    pub fn get_entities_with_all<C: ComponentTuple>(&self) -> Vec<&Entity> {
+        self.entities
+            .iter()
+            .filter(|entity| C::matches_all(entity))
+            .collect()
+    }
+
     /// Update all [System]s in this [World].
     pub fn update(&mut self) {
-        for system in &self.systems {
-            system.update(&mut self.entities);
+        let mut systems = std::mem::take(&mut self.systems);
+        for system in &mut systems {
+            system.update(self);
         }
+        self.systems = systems;
+    }
+}
+
+/// A type that may be used to check if an Entity contains a combination of [Component]s.
+pub trait ComponentTuple {
+    fn matches_all(entity: &Entity) -> bool;
+}
+
+impl ComponentTuple for () {
+    fn matches_all(_: &Entity) -> bool {
+        true
+    }
+}
+
+impl<C1: Component> ComponentTuple for (C1,) {
+    fn matches_all(entity: &Entity) -> bool {
+        entity.has_component::<C1>()
+    }
+}
+
+impl<C1: Component, C2: Component> ComponentTuple for (C1, C2) {
+    fn matches_all(entity: &Entity) -> bool {
+        entity.has_component::<C1>() && entity.has_component::<C2>()
+    }
+}
+
+impl<C1: Component, C2: Component, C3: Component> ComponentTuple for (C1, C2, C3) {
+    fn matches_all(entity: &Entity) -> bool {
+        entity.has_component::<C1>() && entity.has_component::<C2>() && entity.has_component::<C3>()
     }
 }
