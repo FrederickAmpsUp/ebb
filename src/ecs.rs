@@ -78,6 +78,22 @@ impl Entity {
             .get(&TypeId::of::<T>())
             .and_then(|box_any| box_any.downcast_ref::<T>())
     }
+
+    /// Get a mutable reference to a specified [Component] from this [Entity]
+    /// 
+    /// # Type Parameters
+    /// 
+    /// * `T` - a [Component], the type to return.
+    /// 
+    /// # Returns
+    /// 
+    /// `Some(component)` if this [Entity] contains the specified [Component].  
+    /// `None` otherwise.
+    pub fn get_component_mut<T: Component>(&mut self) -> Option<&mut T> {
+        self.components
+            .get_mut(&TypeId::of::<T>())
+            .and_then(|box_any| box_any.downcast_mut::<T>())
+    }
 }
 
 // TODO: a way to search through the entities to find ones with a specific component (fast)
@@ -126,7 +142,16 @@ impl World {
         &self.entities
     }
 
-    /// Get a reference of all [Entity]s in this [World] that match the specified [ComponentTuple]
+    /// Get all the [Entity]s from this [World].
+    /// 
+    /// # Returns
+    /// 
+    /// A mutable reference to the internal [Vec] of [Entity]s.
+    pub fn get_entities_mut(&mut self) -> &mut Vec<Entity> {
+        &mut self.entities
+    }
+
+    /// Get a reference to all [Entity]s in this [World] that match the specified [ComponentTuple]
     /// 
     /// # Type Parameters
     /// 
@@ -138,6 +163,22 @@ impl World {
     pub fn get_entities_with_all<C: ComponentTuple>(&self) -> Vec<&Entity> {
         self.entities
             .iter()
+            .filter(|entity| C::matches_all(entity))
+            .collect()
+    }
+
+    /// Get a mutable reference to all [Entity]s in this [World] that match the specified [ComponentTuple]
+    /// 
+    /// # Type Parameters
+    /// 
+    /// * `C` - a [ComponentTuple] describing the components to filter.
+    /// 
+    /// # Returns
+    /// 
+    /// A [Vec] of mutable references to all [Entity]s from this [World] that match all types in the [ComponentTuple]
+    pub fn get_entities_with_all_mut<C: ComponentTuple>(&mut self) -> Vec<&mut Entity> {
+        self.entities
+            .iter_mut()
             .filter(|entity| C::matches_all(entity))
             .collect()
     }

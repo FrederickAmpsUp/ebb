@@ -7,12 +7,20 @@ struct VertexOutput {
     @location(0) vert_pos: vec3<f32>,
 };
 
+struct EbbBuiltinUniforms {
+    proj_mtx: mat4x4<f32>,
+    view_mtx: mat4x4<f32>
+}
+
+@group(0) @binding(0)
+var<uniform> ebb: EbbBuiltinUniforms;
+
 @vertex
 fn vs_main(
     in_vert: VertexInput,
 ) -> VertexOutput {
     var out: VertexOutput;
-    out.clip_position = vec4<f32>(in_vert.position, 1.0);
+    out.clip_position = ebb.proj_mtx * ebb.view_mtx * vec4<f32>(in_vert.position + vec3<f32>(0, 0, 2), 1.0);
     out.vert_pos = out.clip_position.xyz;
     return out;
 }

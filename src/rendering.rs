@@ -1,17 +1,33 @@
 use wgpu;
+use bytemuck;
 use crate::camera;
 use crate::mesh::RenderMesh;
 use crate::transform;
 use crate::Instance;
 use crate::ecs;
 use crate::mesh;
+use wgpu::util::DeviceExt;
+use glam;
 
 /*
  * TODO:
  * - Shader abstraction and preprocesser (#include directives and prelude)
+ * - Better uniform handling system
+ *      uniforms will be parsed from shader code and may be accessed by name
  * - More configurability for render pipelines
  * - Better abstraction for RenderContext
 */
+
+pub trait ShaderUniform: Copy + Clone + bytemuck::Pod + bytemuck::Zeroable {}
+
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct BuiltinUniforms {
+    projection_mtx: glam::Mat4,
+    view_mtx: glam::Mat4
+}
+unsafe impl bytemuck::Pod for BuiltinUniforms {}
+unsafe impl bytemuck::Zeroable for BuiltinUniforms {}
 
 /// An interface used for creating command buffers for rendering.
 pub struct RenderContext {
@@ -20,7 +36,9 @@ pub struct RenderContext {
 
 /// A collection of shader inputs (vertices) and color attachments (framebuffers)
 pub struct RenderPipeline {
-    pipeline: wgpu::RenderPipeline
+    pipeline: wgpu::RenderPipeline,
+    builtin_uniforms: wgpu::Buffer,
+    builtin_uniform_bind_group: wgpu::BindGroup
 }
 impl RenderPipeline {
     /// Creates a render pipeline from the raw WGPU descriptor.
@@ -38,9 +56,11 @@ impl RenderPipeline {
     /// ```ignore
     /// let pipeline = ebb::rendering::RenderPipeline::from_raw(&g_instance, &descriptor);
     /// ```
-    pub fn from_raw(instance: &Instance, desc: &wgpu::RenderPipelineDescriptor) -> Self {
+    pub fn from_raw(instance: &Instance, desc: &wgpu::RenderPipelineDescriptor, uubg: wgpu::BindGroup, uu: wgpu::Buffer) -> Self {
         Self {
-            pipeline: instance.raw_device().create_render_pipeline(desc)
+            pipeline: instance.raw_device().create_render_pipeline(desc),
+            builtin_uniform_bind_group: uubg,
+            builtin_uniforms: uu
         }
     }
 
@@ -63,9 +83,51 @@ impl RenderPipeline {
     /// ```
     pub fn new(instance: &Instance, buffers: &[wgpu::VertexBufferLayout], shader: wgpu::ShaderModuleDescriptor) -> Self {
         let shader = instance.raw_device().create_shader_module(shader);
+
+        let b_uniform_buffer = instance.raw_device().create_buffer_init(
+            &wgpu::util::BufferInitDescriptor {
+                label: Some("Ebb user uniform buffer"),
+                contents: &[0 as u8; size_of::<BuiltinUniforms>()],
+                usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST
+            }
+        );
+
+        let b_uniform_bind_group_layout = instance.raw_device().create_bind_group_layout(
+            &wgpu::BindGroupLayoutDescriptor {
+                entries: &[
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 0,
+                        visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
+                        ty: wgpu::BindingType::Buffer {
+                            ty: wgpu::BufferBindingType::Uniform,
+                            has_dynamic_offset: false,
+                            min_binding_size: None
+                        },
+                        count: None,
+                    }
+                ],
+                label: Some("Ebb user uniform bindgroup")
+            }
+        );
+
+        let b_uniform_bind_group = instance.raw_device().create_bind_group(
+            &wgpu::BindGroupDescriptor {
+                layout: &b_uniform_bind_group_layout,
+                entries: &[
+                    wgpu::BindGroupEntry {
+                        binding: 0,
+                        resource: b_uniform_buffer.as_entire_binding()
+                    }
+                ],
+                label: Some("Ebb user uniform bindgroup")
+            }
+        );
+
         let layout = instance.raw_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("Ebb Builtin RenderPipeline - PipelineLayout"),
-            bind_group_layouts: &[],
+            bind_group_layouts: &[
+                &b_uniform_bind_group_layout
+            ],
             push_constant_ranges: &[],
         });
 
@@ -111,7 +173,9 @@ impl RenderPipeline {
         });
         
         Self {
-            pipeline: render_pipeline
+            pipeline: render_pipeline,
+            builtin_uniforms: b_uniform_buffer,
+            builtin_uniform_bind_group: b_uniform_bind_group
         }
     }
 
@@ -137,6 +201,15 @@ impl RenderPipeline {
     /// ```
     pub fn for_mesh<V: mesh::Vertex>(instance: &Instance, shader: wgpu::ShaderModuleDescriptor) -> Self {
         Self::new(instance, &[V::LAYOUT], shader)
+    }
+
+    pub fn set_builtin_uniforms(&self, inst: &Instance, val: &BuiltinUniforms) {
+        inst.raw_queue().write_buffer(&self.builtin_uniforms, 0, bytemuck::cast_slice(&[*val]));
+        inst.raw_queue().submit([]);
+    }
+
+    pub fn get_uniforms_bind_group(&self) -> &wgpu::BindGroup {
+        &self.builtin_uniform_bind_group
     }
 
     /// Get the raw WGPU pipeline object.
@@ -166,18 +239,29 @@ impl ecs::System for BasicRenderSystem {
     /// * `world` - The collection of entities to operate on.
     fn update(&self, world: &mut ecs::World) {
         let mut render_ctx = RenderContext::new(&self.instance);
-        let renderable_entities = &world.get_entities_with_all::<(RenderMesh,)>();
+
+        let renderables = &world.get_entities_with_all::<(mesh::RenderMesh,)>();
 
         for camera in world.get_entities_with_all::<(transform::Transform3D, camera::Camera)>() {
             let cam = camera.get_component::<camera::Camera>().unwrap();
+            let trn = camera.get_component::<transform::Transform3D>().unwrap();
 
             let surf = cam.get_render_target();
 
             let mut render_pass = render_ctx.clear(&surf.borrow_mut().get_view(), self.clear_color);
 
-            for entity in renderable_entities {
+            let pm = *cam.get_projection_matrix();
+            let mm = trn.model_matrix;
+
+            for entity in renderables {
                 if let Some(component) = entity.get_component::<mesh::RenderMesh>() {
+                    component.get_renderer().set_builtin_uniforms(&self.instance, &BuiltinUniforms{
+                        projection_mtx: pm,
+                        view_mtx: mm.inverse()
+                    });
+
                     render_pass.set_pipeline(&component.get_renderer().pipeline);
+                    render_pass.set_bind_group(0, &component.get_renderer().builtin_uniform_bind_group, &[]);
                     let vb = component.get_vertex_buffer();
                     let ib = component.get_index_buffer();
 
