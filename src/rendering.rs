@@ -1,7 +1,6 @@
 use wgpu;
 use bytemuck;
 use crate::camera;
-use crate::mesh::RenderMesh;
 use crate::transform;
 use crate::Instance;
 use crate::ecs;
@@ -154,7 +153,7 @@ impl RenderPipeline {
                 topology: wgpu::PrimitiveTopology::TriangleList,
                 strip_index_format: None,
                 front_face: wgpu::FrontFace::Ccw,
-                cull_mode: Some(wgpu::Face::Back),
+                cull_mode: Some(wgpu::Face::Front),
                 // Setting this to anything other than Fill requires Features::NON_FILL_POLYGON_MODE
                 polygon_mode: wgpu::PolygonMode::Fill,
                 // Requires Features::DEPTH_CLIP_CONTROL
@@ -257,7 +256,7 @@ impl ecs::System for BasicRenderSystem {
                 if let Some(component) = entity.get_component::<mesh::RenderMesh>() {
                     component.get_renderer().set_builtin_uniforms(&self.instance, &BuiltinUniforms{
                         projection_mtx: pm,
-                        view_mtx: mm.inverse()
+                        view_mtx: mm
                     });
 
                     render_pass.set_pipeline(&component.get_renderer().pipeline);

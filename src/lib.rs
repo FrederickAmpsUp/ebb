@@ -18,5 +18,5 @@ pub type Window<'a> = window::Window<'a>;
 pub type Engine = engine::Engine;
 
 pub fn setup() {
-    // can do setup stuff here
+    // can do setup stuff here (there's nothing)
 }

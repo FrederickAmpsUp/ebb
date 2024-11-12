@@ -5,6 +5,7 @@ use std::{cell::RefCell, sync::Arc};
 use crate::surface;
 
 /// A wrapper over the GPU and window surface.
+#[allow(dead_code)]
 pub struct Instance<'a> {
     instance: wgpu::Instance,
     surface: Arc<RefCell<surface::WindowSurface<'a>>>,

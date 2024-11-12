@@ -42,7 +42,9 @@ impl<'a> Surface for WindowSurface<'a> {
     }
 
     fn get_view(&mut self) -> wgpu::TextureView {
-        self.curr_tex = Some(self.surf.get_current_texture().expect("Failed to retrieve window surface."));
+        if let None = self.curr_tex {
+            self.curr_tex = Some(self.surf.get_current_texture().expect("Failed to retrieve window surface."));
+        }
         self.curr_tex.as_ref().unwrap().texture.create_view(&Default::default())
     }
     
@@ -61,10 +63,14 @@ impl<'a> Surface for WindowSurface<'a> {
 
 impl<'a> WindowSurface<'a> {
     pub fn new(surf: wgpu::Surface<'a>) -> Self {
-        Self {
+        let mut self_ = Self {
             surf,
             curr_tex: None
-        }
+        };
+
+        let _ = self_.get_view();
+
+        self_
     }
 
     pub fn raw_surface(&self) -> &wgpu::Surface {

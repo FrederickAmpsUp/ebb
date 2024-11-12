@@ -24,10 +24,15 @@ impl Camera {
     /// 
     /// The [Camera] object. 
     pub fn perspective(render_target: Arc<RefCell<impl surface::Surface + 'static>>, vfov_degrees: f32, z_near: f32, z_far: f32) -> Self {
+        let width = render_target.borrow().width() as f32;
+        let height = render_target.borrow().height() as f32;
+
+        println!("({width} {height})");
+        
         Self {
             // aspect todo
-            projection_matrix: glam::Mat4::perspective_lh(vfov_degrees * (PI / 180.0), 1.0, z_near, z_far),
-            render_target
+            projection_matrix: glam::Mat4::perspective_lh(vfov_degrees * (PI / 180.0), render_target.borrow().width() as f32 / render_target.borrow().height() as f32, z_near, z_far),
+            render_target: render_target.clone()
         }
     }
 
