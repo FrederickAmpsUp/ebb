@@ -36,7 +36,7 @@ fn main() {
 
     let pipeline = ebb::rendering::RenderPipeline::for_mesh::<ebb::mesh::PositionVertex3D>(&engine.instance, wgpu::include_wgsl!("assets/shaders/test_model.wgsl"));
         // todo better paths
-    let mesh_renderer = ebb::mesh::RenderMesh::load_obj(&engine.instance, Rc::new(pipeline), "./tests/portals/assets/box.obj").expect("Failed to load mesh.");
+    let mesh_renderer = ebb::mesh::RenderMesh::load_obj(&engine.instance, Rc::new(pipeline), "./tests/portals/assets/suzanne.obj").expect("Failed to load mesh.");
     let mut mesh_ent = ebb::ecs::Entity::new();
     mesh_ent.add_component(mesh_renderer);
 

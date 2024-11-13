@@ -231,6 +231,7 @@ impl RenderPipeline {
 /// It clears the screen, then renders every entity with a RenderMesh component.
 /// 
 /// This struct takes ownership of an [Instance] which is used for rendering.
+#[allow(dead_code)]
 pub struct BasicRenderSystem {
     instance: Instance<'static>,
     depth_texture: wgpu::Texture,
