@@ -161,7 +161,13 @@ impl RenderPipeline {
                 // Requires Features::CONSERVATIVE_RASTERIZATION
                 conservative: false,
             },
-            depth_stencil: None,
+            depth_stencil: Some(wgpu::DepthStencilState {
+                format: wgpu::TextureFormat::Depth32Float,
+                depth_write_enabled: true,
+                depth_compare: wgpu::CompareFunction::Less,
+                stencil: wgpu::StencilState::default(),
+                bias: wgpu::DepthBiasState::default(),
+            }),
             multisample: wgpu::MultisampleState {
                 count: 1,
                 mask: !0,
@@ -227,6 +233,8 @@ impl RenderPipeline {
 /// This struct takes ownership of an [Instance] which is used for rendering.
 pub struct BasicRenderSystem {
     instance: Instance<'static>,
+    depth_texture: wgpu::Texture,
+    depth_texture_view: wgpu::TextureView,
     clear_color: wgpu::Color
 }
 impl ecs::System for BasicRenderSystem {
@@ -247,7 +255,7 @@ impl ecs::System for BasicRenderSystem {
 
             let surf = cam.get_render_target();
 
-            let mut render_pass = render_ctx.clear(&surf.borrow_mut().get_view(), self.clear_color);
+            let mut render_pass = render_ctx.clear(&surf.borrow_mut().get_view(), Some(&self.depth_texture_view), self.clear_color);
 
             let pm = *cam.get_projection_matrix();
             let mm = trn.model_matrix;
@@ -290,8 +298,27 @@ impl BasicRenderSystem {
     /// 
     /// The [BasicRenderSystem].
     pub fn new(instance: Instance<'static>, clear_color: wgpu::Color) -> Self {
+        let size = wgpu::Extent3d {
+            width: instance.raw_config().width.max(1),
+            height: instance.raw_config().height.max(1),
+            depth_or_array_layers: 1
+        };
+
+        let desc = wgpu::TextureDescriptor {
+            label: Some("Ebb basic render system depth texture"),
+            size,
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Depth32Float,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            view_formats: &[]
+        };
+        let depth_texture = instance.raw_device().create_texture(&desc);
+        let depth_texture_view = depth_texture.create_view(&Default::default());
+
         Self {
-            instance, clear_color
+            instance, depth_texture, depth_texture_view, clear_color
         }
     }
 }
@@ -340,7 +367,20 @@ impl RenderContext {
     /// # Returns
     /// 
     /// The [wgpu::RenderPass], ready for rendering, starting with a clear op.
-    pub fn clear(&mut self, surf_view: &wgpu::TextureView, color: wgpu::Color) -> wgpu::RenderPass {
+    pub fn clear(&mut self, surf_view: &wgpu::TextureView, depth_stencil_view: Option<&wgpu::TextureView>, color: wgpu::Color) -> wgpu::RenderPass {
+        let ds = if let Some(v) = depth_stencil_view {
+            Some(wgpu::RenderPassDepthStencilAttachment {
+                view: v,
+                depth_ops: Some(wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(1.0),
+                    store: wgpu::StoreOp::Store
+                }),
+                stencil_ops: None
+            })
+        } else {
+            None
+        };
+        
         self.create_render_pass_raw(&wgpu::RenderPassDescriptor {
             label: Some("Ebb Builtin RenderContext - Clear"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
@@ -351,7 +391,7 @@ impl RenderContext {
                     store: wgpu::StoreOp::Store,
                 },
             })],
-            depth_stencil_attachment: None,
+            depth_stencil_attachment: ds,
             occlusion_query_set: None,
             timestamp_writes: None,
         })

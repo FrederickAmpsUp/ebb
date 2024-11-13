@@ -38,6 +38,7 @@ impl<'a> Instance<'a> {
         // TODO: proper error handling
 
         let surface: wgpu::Surface<'a> = instance.create_surface(window.clone()).expect("Ebb: Failed to create window surface!");
+        // todo: switch to async/await here to avoid making the browser angy
         let adapter = futures::executor::block_on(instance.request_adapter(
             &wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::HighPerformance,
