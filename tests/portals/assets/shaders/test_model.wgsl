@@ -27,5 +27,9 @@ fn vs_main(
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    return vec4<f32>(step(abs(sin(10.0*(in.vert_pos))), vec3<f32>(0.5)), 1.0);
+	let as = abs(sin(10.0*in.vert_pos));
+
+	let quant = step(as, vec3<f32>(0.5));
+
+	return vec4<f32>(quant, 1.0);
 }
