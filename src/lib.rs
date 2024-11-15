@@ -7,6 +7,7 @@ pub mod mesh;
 pub mod engine;
 pub mod camera;
 pub mod transform;
+pub mod texture;
 
 /*
  * TODO:
