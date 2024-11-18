@@ -7,6 +7,8 @@ use crate::ecs;
 use crate::mesh;
 use wgpu::util::DeviceExt;
 use glam;
+use std::sync::Arc;
+use std::collections::HashMap;
 
 /*
  * TODO:
@@ -37,7 +39,8 @@ pub struct RenderContext {
 pub struct RenderPipeline {
     pipeline: wgpu::RenderPipeline,
     builtin_uniforms: wgpu::Buffer,
-    builtin_uniform_bind_group: wgpu::BindGroup
+    builtin_uniform_bind_group: wgpu::BindGroup,
+    texture: Arc<dyn crate::texture::Texture> 
 }
 impl RenderPipeline {
     /// Creates a render pipeline from the raw WGPU descriptor.
@@ -55,11 +58,12 @@ impl RenderPipeline {
     /// ```ignore
     /// let pipeline = ebb::rendering::RenderPipeline::from_raw(&g_instance, &descriptor);
     /// ```
-    pub fn from_raw(instance: &Instance, desc: &wgpu::RenderPipelineDescriptor, uubg: wgpu::BindGroup, uu: wgpu::Buffer) -> Self {
+    pub fn from_raw(instance: &Instance, desc: &wgpu::RenderPipelineDescriptor, uubg: wgpu::BindGroup, uu: wgpu::Buffer, texture: Arc<dyn crate::texture::Texture>) -> Self {
         Self {
             pipeline: instance.raw_device().create_render_pipeline(desc),
             builtin_uniform_bind_group: uubg,
-            builtin_uniforms: uu
+            builtin_uniforms: uu,
+            texture
         }
     }
 
@@ -80,7 +84,7 @@ impl RenderPipeline {
     /// ```ignore
     /// let pipeline = ebb::rendering::RenderPipeline::new(&g_instance, &[MeshVertex::LAYOUT], wgpu::include_wgsl!("shaders/example.wgsl"));
     /// ```
-    pub fn new(instance: &Instance, buffers: &[wgpu::VertexBufferLayout], shader: wgpu::ShaderModuleDescriptor) -> Self {
+    pub fn new(instance: &Instance, buffers: &[wgpu::VertexBufferLayout], shader: wgpu::ShaderModuleDescriptor, texture: Arc<dyn crate::texture::Texture>) -> Self {
         let shader = instance.raw_device().create_shader_module(shader);
 
         let b_uniform_buffer = instance.raw_device().create_buffer_init(
@@ -125,7 +129,8 @@ impl RenderPipeline {
         let layout = instance.raw_device().create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("Ebb Builtin RenderPipeline - PipelineLayout"),
             bind_group_layouts: &[
-                &b_uniform_bind_group_layout
+                &b_uniform_bind_group_layout,
+                &texture.raw_bind_group_layout()
             ],
             push_constant_ranges: &[],
         });
@@ -180,7 +185,8 @@ impl RenderPipeline {
         Self {
             pipeline: render_pipeline,
             builtin_uniforms: b_uniform_buffer,
-            builtin_uniform_bind_group: b_uniform_bind_group
+            builtin_uniform_bind_group: b_uniform_bind_group,
+            texture
         }
     }
 
@@ -204,8 +210,8 @@ impl RenderPipeline {
     /// ```ignore
     /// let pipeline = ebb::rendering::RenderPipeline::for_mesh::<MeshVertex>(&g_instance, wgpu::include_wgsl("shaders/example.wgsl"));
     /// ```
-    pub fn for_mesh<V: mesh::Vertex>(instance: &Instance, shader: wgpu::ShaderModuleDescriptor) -> Self {
-        Self::new(instance, &[V::LAYOUT], shader)
+    pub fn for_mesh<V: mesh::Vertex>(instance: &Instance, shader: wgpu::ShaderModuleDescriptor, texture: Arc<dyn crate::texture::Texture>) -> Self {
+        Self::new(instance, &[V::LAYOUT], shader, texture)
     }
 
     pub fn set_builtin_uniforms(&self, inst: &Instance, val: &BuiltinUniforms) {
@@ -224,6 +230,10 @@ impl RenderPipeline {
     /// A reference to the internal [wgpu::RenderPipeline].
     pub fn raw_pipeline(&self) -> &wgpu::RenderPipeline {
         &self.pipeline
+    }
+
+    pub fn get_texture(&self) -> &Arc<dyn crate::texture::Texture> {
+        &self.texture
     }
 }
 
@@ -270,6 +280,9 @@ impl ecs::System for BasicRenderSystem {
 
                     render_pass.set_pipeline(&component.get_renderer().pipeline);
                     render_pass.set_bind_group(0, &component.get_renderer().builtin_uniform_bind_group, &[]);
+                    
+                    render_pass.set_bind_group(1, component.get_renderer().get_texture().raw_bind_group(), &[]);
+
                     let vb = component.get_vertex_buffer();
                     let ib = component.get_index_buffer();
 

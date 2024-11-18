@@ -1,6 +1,8 @@
 use std::rc::Rc;
 use glam::*;
 use ebb::{self, camera::Camera, transform::Transform3D};
+use std::collections::HashMap;
+use std::sync::Arc;
 
 struct CameraMoveSystem {
     start: std::time::Instant
@@ -34,7 +36,11 @@ fn main() {
         model_matrix: Mat4::IDENTITY
     });
 
-    let pipeline = ebb::rendering::RenderPipeline::for_mesh::<ebb::mesh::PositionVertex3D>(&engine.instance, wgpu::include_wgsl!("assets/shaders/test_model.wgsl"));
+    let texture = ebb::texture::ImageTexture::load(&engine.instance, "./tests/portals/assets/box_tex.png").expect("failed to load texture :(");
+
+    let pipeline = ebb::rendering::RenderPipeline::for_mesh::<ebb::mesh::PositionNormalTexcoordVertex3D>(&engine.instance, wgpu::include_wgsl!("assets/shaders/test_model.wgsl"),
+        Arc::new(texture)    
+    );
         // todo better paths
     let mesh_renderer = ebb::mesh::RenderMesh::load_obj(&engine.instance, Rc::new(pipeline), "./tests/portals/assets/box.obj").expect("Failed to load mesh.");
     let mut mesh_ent = ebb::ecs::Entity::new();
