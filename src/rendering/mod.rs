@@ -10,6 +10,8 @@ use glam;
 use std::sync::Arc;
 use std::collections::HashMap;
 
+pub mod shader;
+
 /*
  * TODO:
  * - Shader abstraction and preprocesser (#include directives and prelude)
