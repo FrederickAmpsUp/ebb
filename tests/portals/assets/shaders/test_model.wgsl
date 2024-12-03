@@ -23,6 +23,7 @@ var tex: texture_2d<f32>;
 @group(1) @binding(1)
 var samp: sampler;
 
+
 @vertex
 fn vs_main(
     in_vert: VertexInput,
@@ -43,6 +44,8 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 	let texCol = textureSample(tex, samp, vec2<f32>(in.vert_texcoord.x, 1.0 - in.vert_texcoord.y));
 
 	var col = texCol;
+
+	col = pow(col, vec4<f32>(1.0/2.2));
 
 	return col;
 }

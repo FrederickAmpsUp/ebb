@@ -5,6 +5,7 @@ use crate::Instance;
 
 // TODO: texture formats
 //    and error stuff
+//    and not putting everything in its own bind group
 
 pub trait Texture {
     fn raw_bind_group(&self) -> &wgpu::BindGroup;

@@ -8,7 +8,6 @@ use crate::mesh;
 use wgpu::util::DeviceExt;
 use glam;
 use std::sync::Arc;
-use std::collections::HashMap;
 
 pub mod shader;
 
